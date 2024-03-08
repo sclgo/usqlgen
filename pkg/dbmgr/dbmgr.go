@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"github.com/samber/lo"
 	"github.com/xo/dburl"
-	"github.com/xo/usql/drivers"
 )
 
 func FindNew(current []string, original []string) []string {
@@ -12,13 +11,13 @@ func FindNew(current []string, original []string) []string {
 	return diff
 }
 
-func RegisterNewDrivers(existing []string) {
-	for _, driver := range FindNew(sql.Drivers(), existing) {
+func RegisterNewDrivers(existing []string) []string {
+	newDrivers := FindNew(sql.Drivers(), existing)
+	for _, driver := range newDrivers {
 		dburl.Unregister(driver)
 		dburl.Register(GetScheme(driver))
-		d := drivers.Driver{}
-		drivers.Register(driver, d)
 	}
+	return newDrivers
 }
 
 func GetScheme(driver string) dburl.Scheme {
