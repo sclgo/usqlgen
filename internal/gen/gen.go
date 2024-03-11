@@ -1,6 +1,7 @@
 package gen
 
 import (
+	"bytes"
 	_ "embed"
 	"github.com/ansel1/merry/v2"
 	"io"
@@ -53,8 +54,16 @@ func (i Input) All() error {
 }
 
 func (i Input) runGo(goCmd ...string) error {
+	workingDir := i.WorkingDir
+	return RunGo(goCmd, workingDir)
+}
+
+func RunGo(goCmd []string, workingDir string) error {
 	cmd := exec.Command("go", goCmd...)
-	cmd.Dir = i.WorkingDir
+	cmd.Dir = workingDir
+	cmd.Stdout = os.Stdout
+	var buf bytes.Buffer
+	cmd.Stderr = &buf
 	err := cmd.Run()
-	return merry.Wrap(err, merry.AppendMessagef("while running %+v", goCmd))
+	return merry.Wrap(err, merry.AppendMessagef("while running go %+v with output \n%s", goCmd, &buf))
 }
