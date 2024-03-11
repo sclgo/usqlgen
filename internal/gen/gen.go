@@ -49,12 +49,12 @@ func (i Input) All() error {
 	}
 
 	err = i.runGo("mod", "tidy")
-
-	return err
+	return merry.Wrap(err)
 }
 
 func (i Input) runGo(goCmd ...string) error {
 	cmd := exec.Command("go", goCmd...)
 	cmd.Dir = i.WorkingDir
-	return cmd.Run()
+	err := cmd.Run()
+	return merry.Wrap(err, merry.AppendMessagef("while running %+v", goCmd))
 }

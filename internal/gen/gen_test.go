@@ -24,7 +24,7 @@ func TestInput_All(t *testing.T) {
 	}
 	tmpDir, err := os.MkdirTemp("/tmp", "usqltest")
 	require.NoError(t, err)
-	// defer os.RemoveAll(tmpDir)
+	defer os.RemoveAll(tmpDir)
 	inp.WorkingDir = tmpDir
 
 	err = inp.All()
