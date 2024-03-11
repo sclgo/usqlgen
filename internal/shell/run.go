@@ -36,10 +36,9 @@ func Run() {
 func makeApp(passthroughArgs []string) *cli.App {
 	commands := NewCommands(passthroughArgs)
 	app := &cli.App{
-		Name:  "scl",
-		Usage: "Distribution generator for xo/usql - https://github.com/sclgo/usqlgen",
-		Flags: commands.MakeFlags(),
-		Args:  false,
+		Description: "Distribution generator for xo/usql. Learn more at https://github.com/sclgo/usqlgen",
+		Flags:       commands.MakeFlags(),
+		Args:        false,
 		Commands: []*cli.Command{
 			{
 				Name:   "build",
