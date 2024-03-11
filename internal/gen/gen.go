@@ -45,11 +45,11 @@ func (i Input) All() error {
 
 	err = i.runGo("mod", "edit", "-replace", "github.com/xo/usql=github.com/sclgo/usql@latest")
 	if err != nil {
-		return merry.Wrap(err)
+		return err
 	}
 
 	err = i.runGo("mod", "tidy")
-	return merry.Wrap(err)
+	return err
 }
 
 func (i Input) runGo(goCmd ...string) error {

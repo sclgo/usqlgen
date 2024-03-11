@@ -13,6 +13,8 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    env:
+      GOPRIVATE: "github.com/sclgo/usqlgen,github.com/sclgo/usql"
     steps:
     - uses: actions/checkout@v3
 
@@ -23,6 +25,9 @@ jobs:
 
     - name: Build
       run: go build -v ./...
-
+    - name: Configure git for private modules
+      env:
+        TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      run: git config --global url."https://murfffi:${TOKEN}@github.com".insteadOf "https://github.com"
     - name: Test
       run: go test -v ./...
