@@ -10,9 +10,9 @@ import (
 )
 
 func Terminate(ctx context.Context, t *testing.T, c testcontainers.Container) {
-	err := c.Terminate(ctx)
-	require.NoError(t, err)
+	require.NoError(t, c.Terminate(ctx))
 }
+
 func IntegrationOnly(t *testing.T) {
 	if strings.ToLower(os.Getenv("SUITE")) != "integration" {
 		t.SkipNow()
