@@ -54,8 +54,7 @@ func (i Input) All() error {
 }
 
 func (i Input) runGo(goCmd ...string) error {
-	workingDir := i.WorkingDir
-	return RunGo(goCmd, workingDir)
+	return RunGo(goCmd, i.WorkingDir)
 }
 
 func RunGo(goCmd []string, workingDir string) error {
