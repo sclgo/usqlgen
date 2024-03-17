@@ -59,9 +59,10 @@ func (c *GenerateCommand) Action(*cli.Context) error {
 type Commands struct {
 	CommandBase
 
-	Globals    *GlobalParams
-	BuildCmd   *BuildCommand
-	InstallCmd *InstallCommand
+	Globals     *GlobalParams
+	BuildCmd    *BuildCommand
+	InstallCmd  *InstallCommand
+	GenerateCmd *GenerateCommand
 }
 
 func Base(globals *GlobalParams) CommandBase {
@@ -82,6 +83,11 @@ func NewCommands(passthroughArgs []string) *Commands {
 			},
 		},
 		InstallCmd: &InstallCommand{
+			CompileCommand: CompileCommand{
+				CommandBase: Base(globals),
+			},
+		},
+		GenerateCmd: &GenerateCommand{
 			CompileCommand: CompileCommand{
 				CommandBase: Base(globals),
 			},
