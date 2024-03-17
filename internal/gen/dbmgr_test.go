@@ -1,13 +1,13 @@
 package gen_test
 
 import (
+	"database/sql"
 	"github.com/sclgo/usqlgen/internal/gen"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
 
 func TestRegisterNewDrivers(t *testing.T) {
-	var drivers = []string{"hello"}
-	newDrivers := gen.RegisterNewDrivers(drivers)
-	require.Equal(t, drivers, newDrivers)
+	newDrivers := gen.RegisterNewDrivers(sql.Drivers())
+	require.Empty(t, newDrivers)
 }
