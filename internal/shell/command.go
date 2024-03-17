@@ -48,6 +48,14 @@ func (c *InstallCommand) Action(*cli.Context) error {
 	return c.CompileCommand.compile("install")
 }
 
+type GenerateCommand struct {
+	CompileCommand
+}
+
+func (c *GenerateCommand) Action(*cli.Context) error {
+	return c.CompileCommand.compile("")
+}
+
 type Commands struct {
 	CommandBase
 

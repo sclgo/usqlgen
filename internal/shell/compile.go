@@ -35,6 +35,10 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 		return merry.Wrap(err)
 	}
 
+	if compileCmd == "" {
+		return nil
+	}
+
 	args := []string{compileCmd}
 	args = append(args, compileArgs...)
 	args = append(args, c.Globals.PassthroughArgs...)

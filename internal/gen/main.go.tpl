@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/samber/lo"
-	"github.com/sclgo/usqlgen/pkg/dbmgr"
+	"usql/gen"
 	"github.com/xo/usql/drivers"
 	"github.com/xo/usql/shell"
 )
@@ -13,7 +13,7 @@ import _ "{{$val}}"
 
 func main() {
 {{if .Imports}}
-	newDrivers := dbmgr.RegisterNewDrivers(lo.Keys(drivers.Available()))
+	newDrivers := gen.RegisterNewDrivers(lo.Keys(drivers.Available()))
 	for _, driver := range newDrivers {
 		drivers.Register(driver, drivers.Driver{})
 	}

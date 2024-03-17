@@ -1,10 +1,13 @@
-package dbmgr
+package gen
 
 import (
 	"database/sql"
 	"github.com/samber/lo"
 	"github.com/xo/dburl"
 )
+
+// This file is copied as in the generated usql wrapper.
+// It must be self-contained. TODO move to dedicated package so self-containment can be enforced.
 
 func FindNew(current []string, original []string) []string {
 	diff, _ := lo.Difference(current, original)
