@@ -12,9 +12,11 @@ import _ "{{$val}}"
 {{end}}
 
 func main() {
+{{if .Imports}}
 	newDrivers := dbmgr.RegisterNewDrivers(lo.Keys(drivers.Available()))
 	for _, driver := range newDrivers {
 		drivers.Register(driver, drivers.Driver{})
 	}
+{{end}}
 	shell.Run()
 }
