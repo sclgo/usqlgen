@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"github.com/ansel1/merry/v2"
 	"github.com/sclgo/usqlgen/internal/run"
+	"github.com/sclgo/usqlgen/pkg/sclerr"
 	"io"
 	"os"
 	"path/filepath"
@@ -12,6 +13,11 @@ import (
 
 //go:embed main.go.tpl
 var mainTpl string
+
+//go:embed dbmgr.go
+var dbMgrCode []byte
+
+const fileMode = 0700
 
 type Input struct {
 	Imports    []string
@@ -24,7 +30,8 @@ func (i Input) Main(w io.Writer) error {
 }
 
 func (i Input) All() error {
-	err := os.MkdirAll(i.WorkingDir, 0700)
+
+	err := os.MkdirAll(i.WorkingDir, fileMode)
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -33,14 +40,15 @@ func (i Input) All() error {
 	if err != nil {
 		return merry.Wrap(err)
 	}
-	mainFile, err := os.Create(filepath.Join(i.WorkingDir, "main.go"))
+
+	err = i.populateMain()
 	if err != nil {
-		return merry.Wrap(err)
+		return err
 	}
 
-	err = i.Main(mainFile)
+	err = i.populateDbMgr()
 	if err != nil {
-		return merry.Wrap(err)
+		return err
 	}
 
 	err = i.runGo("mod", "edit", "-replace", "github.com/xo/usql=github.com/sclgo/usql@latest")
@@ -52,6 +60,32 @@ func (i Input) All() error {
 	return err
 }
 
+func (i Input) populateMain() error {
+	mainFile, err := os.Create(filepath.Join(i.WorkingDir, "main.go"))
+	if err != nil {
+		return merry.Wrap(err)
+	}
+	defer sclerr.CloseQuietly(mainFile)
+
+	err = i.Main(mainFile)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	return merry.Wrap(mainFile.Close())
+}
+
 func (i Input) runGo(goCmd ...string) error {
 	return run.Go(i.WorkingDir, goCmd...)
+}
+
+func (i Input) populateDbMgr() error {
+	genPackageDir := filepath.Join(i.WorkingDir, "gen")
+	err := os.Mkdir(genPackageDir, fileMode)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	err = os.WriteFile(filepath.Join(genPackageDir, "dbmgr.go"), dbMgrCode, fileMode)
+	return merry.Wrap(err)
 }
