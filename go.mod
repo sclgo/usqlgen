@@ -3,6 +3,7 @@ module github.com/sclgo/usqlgen
 go 1.22.0
 
 require (
+	github.com/MonetDB/MonetDB-Go v1.1.0
 	github.com/ansel1/merry/v2 v2.2.0
 	github.com/datafuselabs/databend-go v0.5.7
 	github.com/samber/lo v1.39.0

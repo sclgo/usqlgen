@@ -10,6 +10,8 @@ github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migc
 github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5+sAH+4kjUM=
 github.com/Microsoft/hcsshim v0.11.4 h1:68vKo2VN8DE9AdN4tnkWnmdhqdbpUFM8OF3Airm7fz8=
 github.com/Microsoft/hcsshim v0.11.4/go.mod h1:smjE4dvqPX9Zldna+t5FG3rnoHhaB7QYxPRqGcpAD9w=
+github.com/MonetDB/MonetDB-Go v1.1.0 h1:FI/SKiJ59zOp4cBbR8BRdlJqr9ydPRJpGK0qDBP/ZyE=
+github.com/MonetDB/MonetDB-Go v1.1.0/go.mod h1:camniXrjGJnMoXXgZWhUY+2nKPVfjKmcA5mmrjuV2+A=
 github.com/ansel1/merry/v2 v2.2.0 h1:UozCy11F6igadv9XQgOBFr9xguUWJGvdWwQydh0s7pc=
 github.com/ansel1/merry/v2 v2.2.0/go.mod h1:nrJgBqVO1A8RnUXma1T8slt3wznjZcfbD8HzXaCoLwM=
 github.com/avast/retry-go v3.0.0+incompatible h1:4SOWQ7Qs+oroOTQOYnAHqelpCO0biHSxpiH9JdtuBj0=

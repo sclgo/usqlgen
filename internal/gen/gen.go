@@ -1,12 +1,11 @@
 package gen
 
 import (
-	"bytes"
 	_ "embed"
 	"github.com/ansel1/merry/v2"
+	"github.com/sclgo/usqlgen/internal/run"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"text/template"
 )
@@ -54,15 +53,5 @@ func (i Input) All() error {
 }
 
 func (i Input) runGo(goCmd ...string) error {
-	return RunGo(goCmd, i.WorkingDir)
-}
-
-func RunGo(goCmd []string, workingDir string) error {
-	cmd := exec.Command("go", goCmd...)
-	cmd.Dir = workingDir
-	cmd.Stdout = os.Stdout
-	var buf bytes.Buffer
-	cmd.Stderr = &buf
-	err := cmd.Run()
-	return merry.Wrap(err, merry.AppendMessagef("while running go %+v with output \n%s", goCmd, &buf))
+	return run.Go(i.WorkingDir, goCmd...)
 }
