@@ -12,7 +12,8 @@ import (
 type CompileCommand struct {
 	CommandBase
 
-	Imports cli.StringSlice
+	Imports  cli.StringSlice
+	Replaces cli.StringSlice
 }
 
 func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error {
@@ -47,10 +48,18 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 }
 
 func (c *CompileCommand) MakeFlags() []cli.Flag {
-	return []cli.Flag{
+	return append([]cli.Flag{
 		&cli.StringSliceFlag{
 			Name:        "import",
+			Usage:       "imports for side-effects the given package, typically for registering database/sql drivers, can be repeated",
+			Aliases:     []string{"i"},
 			Destination: &c.Imports,
 		},
-	}
+		&cli.StringSliceFlag{
+			Name:        "replace",
+			Usage:       "adds a replace directive to the generated module with the same format as 'go mod edit -replace', can be repeated",
+			Aliases:     []string{"r"},
+			Destination: &c.Replaces,
+		},
+	}, c.CommandBase.MakeFlags()...)
 }
