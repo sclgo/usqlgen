@@ -33,7 +33,8 @@ func TestInput_All(t *testing.T) {
 	fi.SkipLongTest(t)
 
 	inp := gen.Input{
-		Imports: []string{"github.com/datafuselabs/databend-go"},
+		Imports:  []string{"github.com/MonetDB/MonetDB-Go/v2"},
+		Replaces: []string{"github.com/MonetDB/MonetDB-Go=github.com/sclgo/MonetDB-Go@latest"},
 	}
 	tmpDir, err := os.MkdirTemp("/tmp", "usqltest")
 	require.NoError(t, err)
@@ -51,5 +52,5 @@ func TestInput_All(t *testing.T) {
 	err = cmd.Run()
 	require.NoError(t, err, buf.String())
 
-	require.Contains(t, buf.String(), "databend")
+	require.Contains(t, buf.String(), "monetdb")
 }
