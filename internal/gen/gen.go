@@ -21,6 +21,7 @@ const fileMode = 0700
 
 type Input struct {
 	Imports    []string
+	Replaces   []string
 	WorkingDir string
 }
 
@@ -51,9 +52,18 @@ func (i Input) All() error {
 		return err
 	}
 
-	err = i.runGo("mod", "edit", "-replace", "github.com/xo/usql=github.com/sclgo/usql@latest")
-	if err != nil {
-		return err
+	// TODO Find a way to choose version of usql
+	for _, rs := range append(
+		[]string{"github.com/xo/usql=github.com/sclgo/usql@main"},
+		i.Replaces...) {
+		err = i.runGoModReplace(rs)
+		if err != nil {
+			return err
+		}
+		err = i.runGo("mod", "tidy")
+		if err != nil {
+			return err
+		}
 	}
 
 	err = i.runGo("mod", "tidy")
@@ -77,6 +87,10 @@ func (i Input) populateMain() error {
 
 func (i Input) runGo(goCmd ...string) error {
 	return run.Go(i.WorkingDir, goCmd...)
+}
+
+func (i Input) runGoModReplace(replaceSpec string) error {
+	return run.Go(i.WorkingDir, "mod", "edit", "-replace", replaceSpec)
 }
 
 func (i Input) populateDbMgr() error {

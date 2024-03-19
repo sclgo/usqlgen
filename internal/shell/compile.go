@@ -31,6 +31,7 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 	}
 	genInput := gen.Input{
 		Imports:    c.Imports.Value(),
+		Replaces:   c.Replaces.Value(),
 		WorkingDir: workingDir,
 	}
 	err = genInput.All()
