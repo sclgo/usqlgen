@@ -21,7 +21,9 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 	if err != nil {
 		return merry.Wrap(err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		_ = os.RemoveAll(tmpDir)
+	}()
 	workingDir := filepath.Join(tmpDir, "usql")
 	err = os.Mkdir(workingDir, 0700)
 	if err != nil {

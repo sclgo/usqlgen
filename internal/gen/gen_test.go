@@ -3,6 +3,7 @@ package gen_test
 import (
 	"bytes"
 	"github.com/sclgo/usqlgen/internal/gen"
+	"github.com/sclgo/usqlgen/pkg/fi"
 	"github.com/stretchr/testify/require"
 	"io"
 	"os"
@@ -29,15 +30,14 @@ func TestInput_Main(t *testing.T) {
 }
 
 func TestInput_All(t *testing.T) {
-	if testing.Short() {
-		t.SkipNow()
-	}
+	fi.SkipLongTest(t)
+
 	inp := gen.Input{
 		Imports: []string{"github.com/datafuselabs/databend-go"},
 	}
 	tmpDir, err := os.MkdirTemp("/tmp", "usqltest")
 	require.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer fi.MustF(fi.Bind(os.RemoveAll, tmpDir), t)
 	inp.WorkingDir = tmpDir
 
 	err = inp.All()

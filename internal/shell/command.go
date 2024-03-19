@@ -32,6 +32,21 @@ func (*CommandBase) Action(*cli.Context) error {
 
 type BuildCommand struct {
 	CompileCommand
+
+	output string
+}
+
+func (c *BuildCommand) MakeFlags() []cli.Flag {
+	return append(c.CompileCommand.MakeFlags(),
+		&cli.StringFlag{
+			Name: "output",
+			Usage: `path to file where the executable will be written; 
+if value is -, binary will be written to standard output; if the path is a directory,
+executable with name 'usql' will be created there;`,
+			Aliases:     []string{"o"},
+			Destination: &c.output,
+			Value:       ".",
+		})
 }
 
 func (c *BuildCommand) Action(*cli.Context) error {
@@ -52,6 +67,20 @@ func (c *InstallCommand) Action(*cli.Context) error {
 
 type GenerateCommand struct {
 	CompileCommand
+
+	output string
+}
+
+func (c *GenerateCommand) MakeFlags() []cli.Flag {
+	return append(c.CompileCommand.MakeFlags(),
+		&cli.StringFlag{
+			Name: "output",
+			Usage: `path to directory where the generated code will be written; 
+if value is -, tar archive will be written to standard output`,
+			Aliases:     []string{"o"},
+			Destination: &c.output,
+			Value:       ".",
+		})
 }
 
 func (c *GenerateCommand) Action(*cli.Context) error {
@@ -80,19 +109,19 @@ func NewCommands(passthroughArgs []string) *Commands {
 	return &Commands{
 		CommandBase: Base(globals),
 		BuildCmd: &BuildCommand{
-			CompileCommand: CompileCommand{
-				CommandBase: Base(globals),
-			},
+			CompileCommand: MakeCompileCmd(globals),
 		},
 		InstallCmd: &InstallCommand{
-			CompileCommand: CompileCommand{
-				CommandBase: Base(globals),
-			},
+			CompileCommand: MakeCompileCmd(globals),
 		},
 		GenerateCmd: &GenerateCommand{
-			CompileCommand: CompileCommand{
-				CommandBase: Base(globals),
-			},
+			CompileCommand: MakeCompileCmd(globals),
 		},
+	}
+}
+
+func MakeCompileCmd(globals *GlobalParams) CompileCommand {
+	return CompileCommand{
+		CommandBase: Base(globals),
 	}
 }

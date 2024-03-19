@@ -38,7 +38,7 @@ func (i Input) All() error {
 
 	err = i.runGo("mod", "init", "usql")
 	if err != nil {
-		return merry.Wrap(err)
+		return err
 	}
 
 	err = i.populateMain()
