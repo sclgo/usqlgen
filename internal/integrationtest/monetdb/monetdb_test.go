@@ -21,7 +21,7 @@ const dbPort = "50000/tcp"
 func TestMonetdb(t *testing.T) {
 	integrationtest.IntegrationOnly(t)
 	ctx := context.Background()
-	c := fi.Must(Setup(ctx))(t)
+	c := fi.NoError(Setup(ctx)).Require(t)
 
 	defer integrationtest.Terminate(ctx, t, c)
 	dsn := GetDsn(ctx, c)
@@ -31,7 +31,7 @@ func TestMonetdb(t *testing.T) {
 		Imports: []string{"github.com/MonetDB/MonetDB-Go/v2"},
 	}
 
-	integrationtest.CheckGenAll(t, inp, "monetdb", dsn, "select 1")
+	integrationtest.CheckGenAll(t, inp, "monetdb:"+dsn, "select 1")
 }
 
 func GetDsn(ctx context.Context, c testcontainers.Container) string {
