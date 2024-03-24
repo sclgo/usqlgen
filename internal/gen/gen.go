@@ -27,7 +27,7 @@ type Input struct {
 
 func (i Input) Main(w io.Writer) error {
 	tpl := template.Must(template.New("main").Parse(mainTpl))
-	return tpl.Execute(w, i)
+	return merry.Wrap(tpl.Execute(w, i))
 }
 
 func (i Input) All() error {
@@ -60,13 +60,14 @@ func (i Input) All() error {
 		if err != nil {
 			return err
 		}
+		// go doesn't support running two go mod edit -replace without a
+		// go mod tidy in between.
 		err = i.runGo("mod", "tidy")
 		if err != nil {
 			return err
 		}
 	}
 
-	err = i.runGo("mod", "tidy")
 	return err
 }
 
@@ -79,7 +80,7 @@ func (i Input) populateMain() error {
 
 	err = i.Main(mainFile)
 	if err != nil {
-		return merry.Wrap(err)
+		return err
 	}
 
 	return merry.Wrap(mainFile.Close())
@@ -90,7 +91,7 @@ func (i Input) runGo(goCmd ...string) error {
 }
 
 func (i Input) runGoModReplace(replaceSpec string) error {
-	return run.Go(i.WorkingDir, "mod", "edit", "-replace", replaceSpec)
+	return i.runGo("mod", "edit", "-replace", replaceSpec)
 }
 
 func (i Input) populateDbMgr() error {

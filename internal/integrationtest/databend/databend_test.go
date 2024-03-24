@@ -43,7 +43,7 @@ func Setup(ctx context.Context) (testcontainers.Container, error) {
 func TestDatabend(t *testing.T) {
 	integrationtest.IntegrationOnly(t)
 	ctx := context.Background()
-	c := fi.Must(Setup(ctx))(t)
+	c := fi.NoError(Setup(ctx)).Require(t)
 
 	defer integrationtest.Terminate(ctx, t, c)
 	dsn := GetDsn(ctx, c)
@@ -54,5 +54,5 @@ func TestDatabend(t *testing.T) {
 		Imports: []string{"github.com/datafuselabs/databend-go"},
 	}
 
-	integrationtest.CheckGenAll(t, inp, "databend", dsn, query)
+	integrationtest.CheckGenAll(t, inp, "databend:"+dsn, query)
 }

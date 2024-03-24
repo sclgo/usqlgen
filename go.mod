@@ -6,6 +6,7 @@ require (
 	github.com/MonetDB/MonetDB-Go v1.1.0
 	github.com/ansel1/merry/v2 v2.2.1
 	github.com/datafuselabs/databend-go v0.5.7
+	github.com/kprotoss/go-impala v0.0.0-20230403125028-15c72c20c0ec
 	github.com/samber/lo v1.39.0
 	github.com/stretchr/testify v1.9.0
 	github.com/testcontainers/testcontainers-go v0.29.1
@@ -19,6 +20,7 @@ require (
 	github.com/BurntSushi/toml v1.3.2 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/Microsoft/hcsshim v0.11.4 // indirect
+	github.com/apache/thrift v0.18.1 // indirect
 	github.com/avast/retry-go v3.0.0+incompatible // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/containerd/containerd v1.7.12 // indirect

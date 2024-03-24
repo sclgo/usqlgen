@@ -1,10 +1,15 @@
 package main
 
+{{if .Imports}}
 import (
 	"github.com/samber/lo"
 	"usql/gen"
 	"github.com/xo/usql/drivers"
-	"github.com/xo/usql/shell"
+)
+{{end}}
+
+import (
+    "github.com/xo/usql/shell"
 )
 
 {{range $val := .Imports}}
@@ -15,7 +20,9 @@ func main() {
 {{if .Imports}}
 	newDrivers := gen.RegisterNewDrivers(lo.Keys(drivers.Available()))
 	for _, driver := range newDrivers {
-		drivers.Register(driver, drivers.Driver{})
+		drivers.Register(driver, drivers.Driver{
+		    Copy: drivers.CopyWithInsert(nil),
+		})
 	}
 {{end}}
 	shell.Run()

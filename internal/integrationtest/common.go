@@ -37,16 +37,16 @@ func SanityPing(ctx context.Context, t *testing.T, dsn string, driver string) {
 	require.NoError(t, err)
 }
 
-func CheckGenAll(t *testing.T, inp gen.Input, driver string, dsn string, query string) {
+func CheckGenAll(t *testing.T, inp gen.Input, dsn string, query string, tags ...string) {
 	tmpDir, err := os.MkdirTemp("/tmp", "usqltest")
 	require.NoError(t, err)
-	defer fi.MustF(fi.Bind(os.RemoveAll, tmpDir), t)
+	defer fi.NoErrorF(fi.Bind(os.RemoveAll, tmpDir), t)
 	inp.WorkingDir = tmpDir
 
 	err = inp.All()
 	require.NoError(t, err)
 
-	cmd := exec.Command("go", "run", ".", driver+":"+dsn, "-c", query)
+	cmd := exec.Command("go", "run", "-tags", strings.Join(tags, ","), ".", dsn, "-c", query)
 	cmd.Dir = tmpDir
 	var buf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(&buf, os.Stdout)

@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"github.com/ansel1/merry/v2"
 	"io"
+	"log"
 	"os"
 	"os/exec"
 )
 
 func Go(workingDir string, goCmd ...string) error {
+	log.Printf("running go %+v", goCmd)
 	cmd := exec.Command("go", goCmd...)
 	cmd.Dir = workingDir
 	cmd.Stdout = os.Stdout

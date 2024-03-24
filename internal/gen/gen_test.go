@@ -31,14 +31,29 @@ func TestInput_Main(t *testing.T) {
 
 func TestInput_All(t *testing.T) {
 	fi.SkipLongTest(t)
+	t.Run("imports", func(t *testing.T) {
+		inp := gen.Input{
+			Imports: []string{"github.com/MonetDB/MonetDB-Go/v2"},
+		}
+		stdoutStr := runGenAll(t, inp)
+		require.Contains(t, stdoutStr, "monetdb")
+	})
 
-	inp := gen.Input{
-		Imports:  []string{"github.com/MonetDB/MonetDB-Go/v2"},
-		Replaces: []string{"github.com/MonetDB/MonetDB-Go=github.com/sclgo/MonetDB-Go@latest"},
-	}
+	t.Run("replaces", func(t *testing.T) {
+		inp := gen.Input{
+			Imports:  []string{"github.com/MonetDB/MonetDB-Go/v2"},
+			Replaces: []string{"github.com/MonetDB/MonetDB-Go/v2=github.com/sclgo/MonetDB-Go/v2@fbbd00a"},
+		}
+		stdoutStr := runGenAll(t, inp)
+
+		require.Contains(t, stdoutStr, "monetdbscl")
+	})
+}
+
+func runGenAll(t *testing.T, inp gen.Input) string {
 	tmpDir, err := os.MkdirTemp("/tmp", "usqltest")
 	require.NoError(t, err)
-	defer fi.MustF(fi.Bind(os.RemoveAll, tmpDir), t)
+	defer fi.NoErrorF(fi.Bind(os.RemoveAll, tmpDir), t)
 	inp.WorkingDir = tmpDir
 
 	err = inp.All()
@@ -50,7 +65,7 @@ func TestInput_All(t *testing.T) {
 	cmd.Stdout = io.MultiWriter(&buf, os.Stdout)
 	cmd.Stderr = os.Stderr
 	err = cmd.Run()
-	require.NoError(t, err, buf.String())
-
-	require.Contains(t, buf.String(), "monetdb")
+	stdoutStr := buf.String()
+	require.NoError(t, err, stdoutStr)
+	return stdoutStr
 }
