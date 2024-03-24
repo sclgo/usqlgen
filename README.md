@@ -41,7 +41,8 @@ Running without installing is useful in minimal container builds.
 If you don't have Go 1.21+, you can run `usqlgen` with Docker:
 
 ```shell
-docker run murfffi/usqlgen build -o - > usql
+docker run --rm golang:1.22 \
+  go run github.com/sclgo/usqlgen build ...add usqlgen parameters here... -o - > usql
 ```
 
 See Docker examples section near the end to see if you need to use Docker - typically not the case.
