@@ -9,7 +9,7 @@ Learn more about `usql` from its [README](https://github.com/xo/usql#readme).
 
 `usqlgen` builds on usql's extensibility to allow including arbitrary drivers.
 
-`usqlgen` is useful when you don't edit `usql` code and:
+`usqlgen` is useful when you want to avoid editing `usql` code and:
 
 - you want to use a database driver which is not publicly available or is under active development
 - you want to use alternative driver for a database supported by `usql`. 
