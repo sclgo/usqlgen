@@ -1,7 +1,7 @@
 # usqlgen
 
 `usqlgen` creates custom distributions of [github.com/xo/usql](https://github.com/xo/usql) - 
-a universal single-binary SQL CLI, build by the [github.com/xo](https://github.com/xo) team, and 
+a universal single-binary SQL CLI, built by the [github.com/xo](https://github.com/xo) team, and 
 inspired by [psql](https://www.postgresql.org/docs/current/app-psql.html).
 
 `usql` is great because it is a multi-platform, multi-database SQL client in a single binary. 
