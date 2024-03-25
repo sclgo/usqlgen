@@ -7,17 +7,18 @@ inspired by [psql](https://www.postgresql.org/docs/current/app-psql.html).
 `usql` is great because it is a multi-platform, multi-database SQL client in a single binary. 
 Learn more about `usql` from its [README](https://github.com/xo/usql#readme).
 
-`usqlgen` builds on usql's extensibility and allows you, among other things,
-to include arbitrary Go SQL drivers, even for databases not known to `usql`.
+`usqlgen` builds on usql's extensibility to allow including arbitrary drivers.
 
-`usqlgen` is useful when:
+`usqlgen` is useful when you don't edit `usql` code and:
 
 - you want to use a database driver which is not publicly available or is under active development
 - you want to use alternative driver for a database supported by `usql`. 
 - you want to use a different version of a bundled driver
 - you want to use a fork of some of the bundled drivers
 - you are working with an obscure or niche database which is not supported by `usql` yet
-  - consider contributing the support to `usql` at some point 
+  - consider contributing the support to `usql` at some point
+ 
+The Examples section details those usecases.
 
 `usqlgen` is itself inspired by the 
 [OpenTelemetry Collector builder](https://opentelemetry.io/docs/collector/custom-collector/).
@@ -42,10 +43,10 @@ If you don't have Go 1.21+, you can run `usqlgen` with Docker:
 
 ```shell
 docker run --rm golang:1.22 \
-  go run github.com/sclgo/usqlgen build ...add usqlgen parameters here... -o - > usql
+  go run github.com/sclgo/usqlgen@latest build ...add usqlgen build parameters here... -o - > usql
 ```
 
-See Docker examples section near the end to see if you need to use Docker - typically not the case.
+See Docker examples section for more on this.
 
 ## Quickstart
 
