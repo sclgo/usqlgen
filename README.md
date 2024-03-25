@@ -78,8 +78,10 @@ just built, run:
 ./usql monetdb:monetdb:password@localhost:50000/monetdb -c "select 'Hello World'"
 ```
 
-You can try the same with databases like [rqlite](https://github.com/rqlite/gorqlite), 
-[influxdb](https://pkg.go.dev/github.com/influxdata/influxdb-iox-client-go/v2/ioxsql), etc.
+You can try the same with databases or data engines like 
+[rqlite](https://github.com/rqlite/gorqlite), 
+[influxdb](https://pkg.go.dev/github.com/influxdata/influxdb-iox-client-go/v2/ioxsql),
+[Dremio or Apache Drill](https://github.com/factset/go-drill), etc.
 
 For more options, see `usqlgen --help` or review the examples below.
 
