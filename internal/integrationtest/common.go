@@ -9,7 +9,6 @@ import (
 	"github.com/sclgo/usqlgen/pkg/fi"
 	"github.com/sclgo/usqlgen/pkg/sclerr"
 	"github.com/stretchr/testify/require"
-	"github.com/testcontainers/testcontainers-go"
 	"github.com/urfave/cli/v2"
 	"io"
 	"os"
@@ -17,12 +16,6 @@ import (
 	"strings"
 	"testing"
 )
-
-// Terminate terminates the given container. Useful in defer where
-// require.NoError(t, c.Terminate(ctx)) can't be used directly.
-func Terminate(ctx context.Context, t *testing.T, c testcontainers.Container) {
-	require.NoError(t, c.Terminate(ctx))
-}
 
 func IntegrationOnly(t *testing.T) {
 	if strings.ToLower(os.Getenv("SUITE")) != "integration" {
