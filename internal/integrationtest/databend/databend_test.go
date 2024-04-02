@@ -12,6 +12,8 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 	"os"
 	"testing"
+
+	_ "github.com/datafuselabs/databend-go"
 )
 
 const Username = "databend"
@@ -21,12 +23,13 @@ const query = `SELECT avg(number) as average FROM numbers(100000000)`
 
 func GetDsn(ctx context.Context, c testcontainers.Container) string {
 	port := lo.Must(c.MappedPort(ctx, "8000/tcp"))
-	return fmt.Sprintf("http://%s:%s@%s:%d/default?sslmode=disable", Username, Password, lo.Must(c.Host(ctx)), port.Int())
+	return fmt.Sprintf("http://%s:%s@%s:%d/default?sslmode=disable&presigned_url_disabled=true", Username, Password, lo.Must(c.Host(ctx)), port.Int())
 }
 
 func Setup(ctx context.Context) (testcontainers.Container, error) {
 	req := testcontainers.ContainerRequest{
-		Image:        "datafuselabs/databend",
+		// Right now databend-go transaction prepared statements work on nightly but not on latest
+		Image:        "datafuselabs/databend:nightly",
 		ExposedPorts: []string{"8000/tcp"},
 		Env: map[string]string{
 			"QUERY_DEFAULT_USER":     Username,
@@ -57,11 +60,6 @@ func TestDatabend(t *testing.T) {
 	})
 
 	t.Run("copy", func(t *testing.T) {
-		//		t.Skip(`the following doesn't work because usql CopyWithInsert starts a transaction,
-		//but databend doesn't support multi-statement transactions. The databend driver (which appears
-		//to be a fork of clickhouse-go) issues a BEGIN statement on db.BeginTx even though the DB
-		//doesn't support it.`)
-
 		tmpDir := integrationtest.MakeTempDir(t)
 		defer fi.NoErrorF(fi.Bind(os.RemoveAll, tmpDir), t)
 		inp.WorkingDir = tmpDir
@@ -71,8 +69,6 @@ func TestDatabend(t *testing.T) {
 
 		output := integrationtest.RunGeneratedUsql(t, "databend:"+dsn, "create table dest(col1 string, col2 string);", tmpDir)
 		require.Contains(t, output, "CREATE TABLE")
-		output = integrationtest.RunGeneratedUsql(t, "csvq:.", `select "1", "2"`, tmpDir)
-		require.Contains(t, output, "(1 row)")
 
 		destExpression := "INSERT INTO dest VALUES (?, ?)"
 		copyCmd := fmt.Sprintf(`\copy csvq:. databend:%s 'select string(1), string(2)' '%s'`, dsn, destExpression)

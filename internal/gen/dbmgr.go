@@ -80,7 +80,11 @@ func SimpleCopyWithInsert(placeholder func(n int) string) func(ctx context.Conte
 			}
 			query = "INSERT INTO " + table + " VALUES (" + strings.Join(placeholders, ", ") + ")"
 		}
-		stmt, err := db.PrepareContext(ctx, query)
+		tx, err := db.BeginTx(ctx, nil)
+		if err != nil {
+			return 0, merry.Errorf("failed to begin transaction: %w", err)
+		}
+		stmt, err := tx.PrepareContext(ctx, query)
 		if err != nil {
 			return 0, merry.Errorf("failed to prepare insert query: %w", err)
 		}
@@ -120,6 +124,10 @@ func SimpleCopyWithInsert(placeholder func(n int) string) func(ctx context.Conte
 		}
 		// TODO if using batches, flush the last batch,
 		// TODO prepare another statement and count remaining rows
+		err = tx.Commit()
+		if err != nil {
+			return n, merry.Wrap(fmt.Errorf("failed to commit transaction: %w", err))
+		}
 		return n, merry.Wrap(rows.Err())
 	}
 }

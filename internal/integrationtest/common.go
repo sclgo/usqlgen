@@ -58,7 +58,6 @@ func RunGeneratedUsql(t *testing.T, dsn string, command string, tmpDir string, t
 	require.NoError(t, err)
 
 	output := buf.String()
-	t.Log(output)
 	return output
 }
 
