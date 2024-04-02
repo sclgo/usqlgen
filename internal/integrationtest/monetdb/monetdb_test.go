@@ -22,8 +22,8 @@ func TestMonetdb(t *testing.T) {
 	integrationtest.IntegrationOnly(t)
 	ctx := context.Background()
 	c := fi.NoError(Setup(ctx)).Require(t)
+	defer fi.NoErrorF(fi.Bind(c.Terminate, ctx), t)
 
-	defer integrationtest.Terminate(ctx, t, c)
 	dsn := GetDsn(ctx, c)
 	integrationtest.SanityPing(ctx, t, dsn, "monetdb")
 

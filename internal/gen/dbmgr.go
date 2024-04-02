@@ -84,7 +84,6 @@ func SimpleCopyWithInsert(placeholder func(n int) string) func(ctx context.Conte
 		if err != nil {
 			return 0, merry.Errorf("failed to begin transaction: %w", err)
 		}
-		fmt.Println(query)
 		stmt, err := tx.PrepareContext(ctx, query)
 		if err != nil {
 			return 0, merry.Errorf("failed to prepare insert query: %w", err)
