@@ -12,8 +12,6 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 	"os"
 	"testing"
-
-	_ "github.com/datafuselabs/databend-go"
 )
 
 const Username = "databend"
