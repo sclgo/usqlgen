@@ -50,6 +50,10 @@ func FixedPlaceholder(placeholder string) func(int) string {
 	}
 }
 
+type DbWriter interface {
+	PrepareContext(ctx context.Context, query string) (*sql.Stmt, error)
+}
+
 // SimpleCopyWithInsert builds a copy handler based on insert.
 func SimpleCopyWithInsert(placeholder func(n int) string) func(ctx context.Context, db *sql.DB, rows *sql.Rows, table string) (int64, error) {
 	return func(ctx context.Context, db *sql.DB, rows *sql.Rows, table string) (int64, error) {
@@ -80,11 +84,13 @@ func SimpleCopyWithInsert(placeholder func(n int) string) func(ctx context.Conte
 			}
 			query = "INSERT INTO " + table + " VALUES (" + strings.Join(placeholders, ", ") + ")"
 		}
-		tx, err := db.BeginTx(ctx, nil)
+		var wrt DbWriter
+		wrt, err = db.BeginTx(ctx, nil)
 		if err != nil {
-			return 0, merry.Errorf("failed to begin transaction: %w", err)
+			fmt.Printf("Failed to begin transaction. Falling back to non-transactional copy: %s\n", err)
+			wrt = db
 		}
-		stmt, err := tx.PrepareContext(ctx, query)
+		stmt, err := wrt.PrepareContext(ctx, query)
 		if err != nil {
 			return 0, merry.Errorf("failed to prepare insert query: %w", err)
 		}
@@ -102,6 +108,8 @@ func SimpleCopyWithInsert(placeholder func(n int) string) func(ctx context.Conte
 			values[i] = valueRefs[i].Interface()
 		}
 
+		rowsAffectedSucceeded := false
+		rowsAffectedSupported := true
 		var n int64
 		for rows.Next() {
 			err = rows.Scan(values...)
@@ -116,15 +124,30 @@ func SimpleCopyWithInsert(placeholder func(n int) string) func(ctx context.Conte
 			if err != nil {
 				return n, merry.Wrap(fmt.Errorf("failed to exec insert: %w", err))
 			}
-			rn, err := res.RowsAffected()
+
+			var rn int64
+			if rowsAffectedSupported {
+				rn, err = res.RowsAffected()
+			}
 			if err != nil {
-				return n, merry.Wrap(fmt.Errorf("failed to check rows affected: %w", err))
+				if rowsAffectedSucceeded {
+					return n, merry.Wrap(fmt.Errorf("failed to check rows affected: %w", err))
+				} else {
+					fmt.Printf("Failed to retrieve rowsAffected. Assuming not supported by driver: %s\n", err)
+					rowsAffectedSupported = false
+					rn = 0
+				}
+			} else {
+				rowsAffectedSucceeded = true
 			}
 			n += rn
 		}
 		// TODO if using batches, flush the last batch,
 		// TODO prepare another statement and count remaining rows
-		err = tx.Commit()
+		if tx, ok := wrt.(*sql.Tx); ok {
+			err = tx.Commit()
+		}
+
 		if err != nil {
 			return n, merry.Wrap(fmt.Errorf("failed to commit transaction: %w", err))
 		}

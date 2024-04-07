@@ -49,6 +49,7 @@ func MakeTempDir(t *testing.T) string {
 }
 
 func RunGeneratedUsql(t *testing.T, dsn string, command string, tmpDir string, tags ...string) string {
+	t.Logf("Running cmd %s with dsn %s", command, dsn)
 	cmd := exec.Command("go", "run", "-tags", strings.Join(tags, ","), ".", dsn, "-c", command)
 	cmd.Dir = tmpDir
 	var buf bytes.Buffer
