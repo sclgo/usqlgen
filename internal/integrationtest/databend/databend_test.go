@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
-	"os"
 	"testing"
 )
 
@@ -58,8 +57,7 @@ func TestDatabend(t *testing.T) {
 	})
 
 	t.Run("copy", func(t *testing.T) {
-		tmpDir := integrationtest.MakeTempDir(t)
-		defer fi.NoErrorF(fi.Bind(os.RemoveAll, tmpDir), t)
+		tmpDir := t.TempDir()
 		inp.WorkingDir = tmpDir
 
 		err := inp.All()
