@@ -15,7 +15,7 @@ Learn more about `usql` from its [README](https://github.com/xo/usql#readme).
 - you want to use alternative driver for a database supported by `usql`. 
 - you want to use a different version of a bundled driver
 - you want to use a fork of some of the bundled drivers
-- you are working with an obscure or niche database which is not supported by `usql` yet
+- you are working with a niche database which is not supported by `usql` yet
   - consider contributing the support to `usql` at some point
  
 The Examples section details those usecases.

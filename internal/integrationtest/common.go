@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"github.com/sclgo/usqlgen/internal/gen"
 	"github.com/sclgo/usqlgen/internal/shell"
-	"github.com/sclgo/usqlgen/pkg/fi"
 	"github.com/sclgo/usqlgen/pkg/sclerr"
 	"github.com/stretchr/testify/require"
 	"github.com/urfave/cli/v2"
@@ -33,8 +32,7 @@ func SanityPing(ctx context.Context, t *testing.T, dsn string, driver string) {
 }
 
 func CheckGenAll(t *testing.T, inp gen.Input, dsn string, command string, tags ...string) {
-	tmpDir := MakeTempDir(t)
-	defer fi.NoErrorF(fi.Bind(os.RemoveAll, tmpDir), t)
+	tmpDir := t.TempDir()
 	inp.WorkingDir = tmpDir
 
 	err := inp.All()
@@ -44,22 +42,22 @@ func CheckGenAll(t *testing.T, inp gen.Input, dsn string, command string, tags .
 	require.Contains(t, output, "(1 row)")
 }
 
-func MakeTempDir(t *testing.T) string {
-	return fi.NoError(os.MkdirTemp("/tmp", "usqltest")).Require(t)
-}
-
 func RunGeneratedUsql(t *testing.T, dsn string, command string, tmpDir string, tags ...string) string {
 	t.Logf("Running cmd %s with dsn %s", command, dsn)
+	output, err := RunGeneratedUsqlE(dsn, command, tmpDir, tags...)
+	require.NoError(t, err)
+	return output
+}
+
+func RunGeneratedUsqlE(dsn string, command string, tmpDir string, tags ...string) (string, error) {
 	cmd := exec.Command("go", "run", "-tags", strings.Join(tags, ","), ".", dsn, "-c", command)
 	cmd.Dir = tmpDir
 	var buf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(&buf, os.Stdout)
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
-	require.NoError(t, err)
-
 	output := buf.String()
-	return output
+	return output, err
 }
 
 func CheckBuildRun(t *testing.T, inp gen.Input, dsn string, query string, tags ...string) {

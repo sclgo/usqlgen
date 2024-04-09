@@ -11,7 +11,6 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 	"net"
 	"net/url"
-	"os"
 	"testing"
 )
 
@@ -46,8 +45,7 @@ func TestImpala(t *testing.T) {
 		})
 
 		t.Run("copy", func(t *testing.T) {
-			tmpDir := integrationtest.MakeTempDir(t)
-			defer fi.NoErrorF(fi.Bind(os.RemoveAll, tmpDir), t)
+			tmpDir := t.TempDir()
 			inp.WorkingDir = tmpDir
 
 			err := inp.All()
