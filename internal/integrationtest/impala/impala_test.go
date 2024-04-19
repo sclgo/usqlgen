@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/url"
 	"testing"
+	"time"
 )
 
 const dbPort = "21050/tcp"
@@ -109,7 +110,7 @@ func Setup(ctx context.Context) (testcontainers.Container, error) {
 		Image:        "apache/kudu:impala-latest",
 		ExposedPorts: []string{dbPort},
 		Cmd:          []string{"impala"},
-		WaitingFor:   wait.ForLog("Impala has started."),
+		WaitingFor:   wait.ForLog("Impala has started.").WithStartupTimeout(3 * time.Minute),
 	}
 	return testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: req,
