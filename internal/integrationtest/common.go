@@ -68,6 +68,7 @@ func CheckBuildRun(t *testing.T, inp gen.Input, dsn string, query string, tags .
 			Replaces:    *cli.NewStringSlice(inp.Replaces...),
 		},
 	}
-	cmd.Action(nil)
+	err := cmd.Action(nil)
+	require.NoError(t, err)
 	// TODO complete
 }
