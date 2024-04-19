@@ -21,7 +21,7 @@ func main() {
 	newDrivers := gen.RegisterNewDrivers(lo.Keys(drivers.Available()))
 	for _, driver := range newDrivers {
 		drivers.Register(driver, drivers.Driver{
-		    Copy: gen.SimpleCopyWithInsert(gen.FixedPlaceholder("?")),
+		    Copy: gen.BuildSimpleCopy(gen.FixedPlaceholder("?")),
 		})
 	}
 {{end}}
