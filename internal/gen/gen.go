@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"github.com/ansel1/merry/v2"
 	"github.com/sclgo/usqlgen/internal/run"
+	"github.com/sclgo/usqlgen/pkg/lang"
 	"github.com/sclgo/usqlgen/pkg/sclerr"
 	"github.com/xyproto/unzip"
 	"io"
-	"io/fs"
 	"modernc.org/fileutil"
 	"os"
 	"os/exec"
@@ -28,9 +28,11 @@ var dbMgrCode []byte
 const fileMode = 0700
 
 type Input struct {
-	Imports    []string
-	Replaces   []string
-	WorkingDir string
+	Imports     []string
+	Replaces    []string
+	WorkingDir  string
+	USQLModule  string
+	USQLVersion string
 }
 
 func (i Input) Main(w io.Writer) error {
@@ -38,15 +40,14 @@ func (i Input) Main(w io.Writer) error {
 	return merry.Wrap(tpl.Execute(w, i))
 }
 
-// AllDownload generates a all usql distribution code using the go mod download strategy
+// AllDownload generates all usql distribution code using the go mod download strategy
 func (i Input) AllDownload() error {
 	err := os.MkdirAll(i.WorkingDir, fileMode)
 	if err != nil {
 		return merry.Wrap(err)
 	}
 
-	// TODO Make version a parameter
-	cmd := exec.Command("go", "mod", "download", "-json", "github.com/xo/usql@latest")
+	cmd := exec.Command("go", "mod", "download", "-json", i.getUSQLModuleVersion())
 	cmd.Dir = i.WorkingDir
 	var outputBuf, errorBuf bytes.Buffer
 	cmd.Stdout = &outputBuf
@@ -71,17 +72,12 @@ func (i Input) AllDownload() error {
 		return err
 	}
 
-	err = i.runGo("mod", "edit", "-go=1.22.0")
+	err = i.runGo("mod", "edit", "-go=1.22")
 	if err != nil {
 		return merry.Wrap(err)
 	}
 
-	origMainFile := filepath.Join(i.WorkingDir, "orig_main.go")
-	err = os.Rename(filepath.Join(i.WorkingDir, "main.go"), origMainFile)
-	if err != nil {
-		return merry.Wrap(err)
-	}
-
+	origMainFile := filepath.Join(i.WorkingDir, "main.go")
 	origMainBytes, err := os.ReadFile(origMainFile)
 	if err != nil {
 		return merry.Wrap(err)
@@ -111,11 +107,13 @@ func (i Input) AllDownload() error {
 		err = i.runGo("mod", "tidy")
 	}
 
-	if err != nil {
-		return err
-	}
-
 	return err
+}
+
+func (i Input) getUSQLModuleVersion() string {
+	usqlModule := lang.IfEmpty(i.USQLModule, "github.com/xo/usql")
+	usqlVersion := lang.IfEmpty(i.USQLVersion, "latest")
+	return fmt.Sprintf("%s@%s", usqlModule, usqlVersion)
 }
 
 func (i Input) copyOriginal(downloadInfo map[string]any) error {
@@ -125,7 +123,7 @@ func (i Input) copyOriginal(downloadInfo map[string]any) error {
 	if _, ok := downloadInfo["Zip"]; ok {
 		return i.copyOriginalFromZip(downloadInfo)
 	}
-	return merry.Wrap(fmt.Errorf("neither Zip or Dir available in go mod download output. Error field: %v", downloadInfo["Error"]))
+	return merry.Wrap(fmt.Errorf("can't copy original code; neither Zip or Dir available in go mod download output. Error field: %v", downloadInfo["Error"]))
 }
 
 func (i Input) copyOriginalFromZip(downloadInfo map[string]any) error {
@@ -162,7 +160,7 @@ func (i Input) copyOriginalFromZip(downloadInfo map[string]any) error {
 func (i Input) copyOriginalFromDir(downloadInfo map[string]any) error {
 	errorMsg, ok := downloadInfo["Error"]
 	if ok {
-		return merry.Errorf("Failed to download module: %v", errorMsg)
+		return merry.Wrap(fmt.Errorf("failed to download module: %v", errorMsg))
 	}
 
 	downloadDirAny, ok := downloadInfo["Dir"]
@@ -175,22 +173,8 @@ func (i Input) copyOriginalFromDir(downloadInfo map[string]any) error {
 		return merry.Wrap(err)
 	}
 
-	err = filepath.WalkDir(i.WorkingDir, chmodHandler)
-	if err != nil {
-		return merry.Wrap(err)
-	}
-	return nil
-}
-
-//nolint:unused seems to be a bug in staticheck U1000 but couldn't reproduce in a minimal example
-func chmodHandler(path string, d fs.DirEntry, err error) error {
-	if err != nil {
-		return err
-	}
-	if !d.IsDir() {
-		return os.Chmod(path, fileMode)
-	}
-	return nil
+	err = chmod(i.WorkingDir)
+	return err
 }
 
 func (i Input) All() error {
@@ -251,7 +235,7 @@ func (i Input) goModReplace(replaceList []string) error {
 }
 
 func (i Input) populateMain() error {
-	mainFile, err := os.Create(filepath.Join(i.WorkingDir, "main.go"))
+	mainFile, err := os.Create(filepath.Join(i.WorkingDir, "new_main.go"))
 	if err != nil {
 		return merry.Wrap(err)
 	}
