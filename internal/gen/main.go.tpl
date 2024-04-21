@@ -3,14 +3,10 @@ package main
 {{if .Imports}}
 import (
 	"github.com/samber/lo"
-	"usql/gen"
+	"github.com/xo/usql/gen"
 	"github.com/xo/usql/drivers"
 )
 {{end}}
-
-import (
-    "github.com/xo/usql/shell"
-)
 
 {{range $val := .Imports}}
 import _ "{{$val}}"
@@ -25,5 +21,5 @@ func main() {
 		})
 	}
 {{end}}
-	shell.Run()
+	origMain()
 }
