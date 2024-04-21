@@ -11,6 +11,8 @@ require (
 	github.com/testcontainers/testcontainers-go v0.29.1
 	github.com/urfave/cli/v2 v2.27.1
 	github.com/xo/dburl v0.21.1
+	github.com/xyproto/unzip v0.0.0-20150601123358-823950573952
+	modernc.org/fileutil v1.3.0
 	modernc.org/sqlite v1.29.5
 )
 

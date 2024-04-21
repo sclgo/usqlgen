@@ -2,6 +2,7 @@ package gen_test
 
 import (
 	"bytes"
+	"github.com/samber/lo"
 	"github.com/sclgo/usqlgen/internal/gen"
 	"github.com/sclgo/usqlgen/pkg/fi"
 	"github.com/stretchr/testify/require"
@@ -51,12 +52,11 @@ func TestInput_All(t *testing.T) {
 }
 
 func runGenAll(t *testing.T, inp gen.Input) string {
-	tmpDir, err := os.MkdirTemp("/tmp", "usqltest")
-	require.NoError(t, err)
+	tmpDir := t.TempDir()
 	defer fi.NoErrorF(fi.Bind(os.RemoveAll, tmpDir), t)
 	inp.WorkingDir = tmpDir
 
-	err = inp.All()
+	err := inp.All()
 	require.NoError(t, err)
 
 	cmd := exec.Command("go", "run", ".", "-c", `\drivers`)
@@ -68,4 +68,21 @@ func runGenAll(t *testing.T, inp gen.Input) string {
 	stdoutStr := buf.String()
 	require.NoError(t, err, stdoutStr)
 	return stdoutStr
+}
+
+func TestInput_AllDownload(t *testing.T) {
+	fi.SkipLongTest(t)
+	inp := gen.Input{
+		Imports: []string{"github.com/MonetDB/MonetDB-Go/v2"},
+	}
+	var err error
+	tmpDir := t.TempDir()
+	inp.WorkingDir = tmpDir
+	err = inp.AllDownload()
+	require.NoError(t, err)
+	entries, err := os.ReadDir(tmpDir)
+	require.NoError(t, err)
+	require.True(t, lo.ContainsBy(entries, func(item os.DirEntry) bool {
+		return item.Name() == "main.go"
+	}))
 }

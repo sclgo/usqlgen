@@ -6,16 +6,16 @@ import (
 	"fmt"
 	"github.com/ansel1/merry/v2"
 	"github.com/samber/lo"
-	"github.com/sclgo/usqlgen/pkg/sclerr"
 	"github.com/xo/dburl"
 	"reflect"
 	"strings"
 )
 
 // This file is copied as is in the generated usql wrapper.
-// It must be self-contained. TODO move to dedicated package so self-containment can be enforced.
+// It should not depend on other usqlgen packages, public or internal.
+// TODO Enforce this possibly with golang-ci.
 
-// For now, we avoid depending on xo/usql, only on xo/dburl, to keep our dep tree small.
+// For now, we also avoid depending on xo/usql, only on xo/dburl, to keep our dep tree small.
 // This may change in the future.
 
 func FindNew(current []string, original []string) []string {
@@ -82,7 +82,8 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 			if err != nil {
 				return 0, merry.Errorf("failed to execute query to determine target table columns: %w", err)
 			}
-			defer sclerr.CloseQuietly(colRows)
+			// Can't use sclerr since dbmgr is standalone.
+			defer colRows.Close()
 			columns, err := colRows.Columns()
 			if err != nil {
 				return 0, merry.Errorf("failed to fetch target table columns: %w", err)
@@ -105,7 +106,7 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 	if err != nil {
 		return 0, merry.Errorf("failed to prepare insert query: %w", err)
 	}
-	defer sclerr.CloseQuietly(stmt)
+	defer stmt.Close()
 	columnTypes, err := rows.ColumnTypes()
 	if err != nil {
 		return 0, merry.Errorf("failed to fetch source column types: %w", err)
