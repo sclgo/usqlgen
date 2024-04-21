@@ -73,7 +73,8 @@ func runGenAll(t *testing.T, inp gen.Input) string {
 func TestInput_AllDownload(t *testing.T) {
 	fi.SkipLongTest(t)
 	inp := gen.Input{
-		Imports: []string{"github.com/MonetDB/MonetDB-Go/v2"},
+		Imports:     []string{"github.com/MonetDB/MonetDB-Go/v2"},
+		USQLVersion: "master",
 	}
 	var err error
 	tmpDir := t.TempDir()

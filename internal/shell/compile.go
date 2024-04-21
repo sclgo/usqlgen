@@ -12,8 +12,10 @@ import (
 type CompileCommand struct {
 	CommandBase
 
-	Imports  cli.StringSlice
-	Replaces cli.StringSlice
+	Imports     cli.StringSlice
+	Replaces    cli.StringSlice
+	USQLModule  string
+	USQLVersion string
 }
 
 func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error {
@@ -30,9 +32,11 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 		return merry.Wrap(err)
 	}
 	genInput := gen.Input{
-		Imports:    c.Imports.Value(),
-		Replaces:   c.Replaces.Value(),
-		WorkingDir: workingDir,
+		Imports:     c.Imports.Value(),
+		Replaces:    c.Replaces.Value(),
+		WorkingDir:  workingDir,
+		USQLVersion: c.USQLVersion,
+		USQLModule:  c.USQLModule,
 	}
 	err = genInput.All()
 	if err != nil {
@@ -63,6 +67,19 @@ func (c *CompileCommand) MakeFlags() []cli.Flag {
 			Usage:       "adds a replace directive to the generated module with the same format as 'go mod edit -replace', can be repeated",
 			Aliases:     []string{"r"},
 			Destination: &c.Replaces,
+		},
+		&cli.StringFlag{
+			Name:        "usql-module",
+			Usage:       "module name of usql fork to use if needed",
+			Value:       "github.com/xo/usql",
+			Destination: &c.USQLModule,
+		},
+		&cli.StringFlag{
+			Name:        "usql-version",
+			Usage:       "usql version to use; can be any valid module version incl. 'latest', release, tag, branch, or Git commit",
+			Aliases:     []string{"uv"},
+			Value:       "latest",
+			Destination: &c.USQLVersion,
 		},
 	}, c.CommandBase.MakeFlags()...)
 }
