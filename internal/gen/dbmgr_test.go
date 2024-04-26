@@ -172,6 +172,7 @@ func TestSimpleCopyWithInsert_EdgeCases(t *testing.T) {
 		db,
 		someRows,
 		"insert into hello(a, b) values (?, ?)",
+		1,
 		gen.FixedPlaceholder("?"))
 	require.NoError(t, err)
 
