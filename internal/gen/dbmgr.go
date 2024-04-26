@@ -140,7 +140,7 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 			return n, err
 		}
 		n += rn
-		actuals = actuals[:0]
+		actuals = actuals[:0] // truncate but keep underlying array size
 	}
 
 	if len(actuals) > 0 {
@@ -171,7 +171,6 @@ func writeActuals(ctx context.Context, stmt *sql.Stmt, actuals []interface{}, ro
 	if err != nil {
 		return 0, merry.Wrap(fmt.Errorf("failed to exec insert: %w", err))
 	}
-	actuals = actuals[:0] // truncate but keep underlying array size
 
 	var rn int64
 	if *rowsAffectedSupported {
