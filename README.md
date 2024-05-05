@@ -85,8 +85,8 @@ You can try the same with databases or data engines like
 
 `usqlgen` also allows you to use alternative drivers of supported databases. Examples include:
 
-- [github.com/kprotoss/go-impala](https://github.com/kprotoss/go-impala) - modernized variant of the built-in Impala drivers
-- [github.com/mailru/go-clickhouse/v2](https://github.com/mailru/go-clickhouse) - HTTP-only alternative of the built-in Clickhouse drivers
+- [github.com/kprotoss/go-impala](https://github.com/kprotoss/go-impala) - modernized variant of the built-in Impala driver
+- [github.com/mailru/go-clickhouse/v2](https://github.com/mailru/go-clickhouse) - HTTP-only alternative of the built-in Clickhouse driver
 
 For more options, see `usqlgen --help` or review the examples below.
 
