@@ -53,7 +53,7 @@ See Docker examples section for more on this.
 To install `usql` with support for an additional driver, review your driver documentation
 to find the Go driver name, DSN format and package that needs to be imported to install the
 driver. Let's take for example, [MonetDB](https://github.com/MonetDB/MonetDB-Go#readme),
-a database, too niche to be supported by the regular `usql` distribution:
+which is not in `usql` yet:
 
 ```shell
 usqlgen build --import "github.com/MonetDB/MonetDB-Go/v2"
@@ -83,14 +83,17 @@ You can try the same with databases or data engines like
 [influxdb](https://pkg.go.dev/github.com/influxdata/influxdb-iox-client-go/v2/ioxsql),
 [Dremio or Apache Drill](https://github.com/factset/go-drill), etc.
 
+`usqlgen` also allows you to use alternative drivers of supported databases. Examples include:
+
+- [github.com/kprotoss/go-impala](https://github.com/kprotoss/go-impala) - modernized variant of the built-in Impala driver
+- [github.com/mailru/go-clickhouse/v2](https://github.com/mailru/go-clickhouse) - HTTP-only alternative of the built-in Clickhouse driver
+
 For more options, see `usqlgen --help` or review the examples below.
 
 ## Limitations
 
 In most cases, you will be only able to use SQL with `usql` distributions, created with `usqlgen`.
-Informational commands and autocomplete won't work. 
-You will be able to use all commands only when you can pair `--import` with `--copy`,
-or if you use `--replace` without `--import`. See the examples below for details.
+Informational commands and autocomplete won't work.
 
 ## Examples
 
@@ -134,7 +137,7 @@ SQL driver fork while keeping the `usql` configuration for the target database.
 Information commands, schema exploration, and autocomplete will continue to work
 if the fork remains compatible enough with the original.
 
-For example, the author of `usql` created a SQL driver 
+For example, one of the authora of `usql` created a SQL driver 
 [github.com/kenshaw/go-impala](https://github.com/kenshaw/go-impala),
 fork of the abandoned Apache Impala driver currently used in `usql` - 
 [github.com/bippio/go-impala](https://github.com/bippio/go-impala).
@@ -167,7 +170,7 @@ docker run -d --rm -p 21050:21050 --memory=4096m \
 ```
 
 We included `-- -tags impala` in the command-line so the original driver code in `usql`
-is included in the build. The original driver code imports the bippio driver we replaced.
+is included in the build.
 
 Note that this works only with forks that keep the original module name - 
 in this case `github.com/bippio/go-impala` - in their 
@@ -182,59 +185,7 @@ usqlgen build --import "github.com/kenshaw/go-impala"
 #	        but was required as: github.com/kenshaw/go-impala	       
 ```
 
-A fork of a driver that changed its module name can only be used as
-an alternative driver as described in a following example.
-
-### Using an alternative driver for a supported database
-
-`usqlgen` can replace a driver with an alternative with a different Go module name.
-This includes drivers that started as a fork, but changed their Go module name to be independently usable.
-
-For example, [github.com/kprotoss/go-impala](https://github.com/kprotoss/go-impala)
-is another fork of the abandoned Apache Impala driver currently used in `usql` (github.com/bippio/go-impala).
-Unlike [the fork from the previous example](https://github.com/kenshaw/go-impala),
-you can import this one directly using a package under its own module name:
-
-```shell
-usqlgen build --import "github.com/kprotoss/go-impala"
-# Query Apache Impala running on localhost:
-# Since we use --import, the DB URL is in the form 'driver:dsn'
-# For this driver, this means we repeat 'impala:' twice, once as driver name,
-# and once as a part of the DSN.
-./usql impala:impala://localhost:21050 -c "select 'Hello World" -t -q
-# prints Hello World
-```
-
-Since this driver started as a fork of `bippio/go-impala`, the driver name is the same.
-
-Some alternative drivers diverge more from the built-in ones. For example, 
-[github.com/mailru/go-clickhouse/v2](https://github.com/mailru/go-clickhouse) is an
-alternative driver for Clickhouse, that shares practically nothing with the driver
-included in `usql`. The mailru driver uses the Clickhouse HTTP API instead of the TCP API,
-which may be preferable if HTTP middleware is used like a load-balancer or HTTP service mesh. 
-The HTTP driver name is `chhttp`. You can directly import the driver as usual:
-
-```shell
-usqlgen build --import "github.com/mailru/go-clickhouse/v2"
-# Query Clickhouse running on localhost:
-./usql usqlgen build --import "github.com/mailru/go-clickhouse/v2" -t -q
-# prints Hello World
-```
-
-Just importing the alternative driver makes it less functional that the built-in one, because
-all Clickhouse-specific configuration in `usql` is lost. In such case, you can try copying the
-configuration from the built-in driver to the new one:
-
-```shell
-usqlgen build --copy clickhouse:chhttp --import "github.com/mailru/go-clickhouse/v2" -- -tags clickhouse
-# TODO Add example that demonstrates the config
-```
-
-In the `--copy clickhouse:chhttp` example above, `clickhouse` is the driver name which is the source of the
-configuration and `chhttp` is the target. You can review the `usql` built-in configuration for 
-any driver in <https://github.com/xo/usql/tree/master/drivers>.
-Note that we included `-- -tags clickhouse` to the command-line to ensure the built-in driver 
-and its configuration is included in the build. We won't be able to copy it otherwise.
+Forks that changed the module name to match their repository location can be imported with `--import`.
 
 ### Using a specific version of a driver
 
