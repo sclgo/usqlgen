@@ -92,8 +92,9 @@ For more options, see `usqlgen --help` or review the examples below.
 
 ## Limitations
 
-In most cases, you will be only able to use SQL with `usql` distributions, created with `usqlgen`.
-Informational commands and autocomplete won't work.
+Many `usql` [backslash (meta) commands](https://github.com/xo/usql?tab=readme-ov-file#backslash-commands) will still work 
+with new databases, including [cross-database `\copy`](https://github.com/xo/usql?tab=readme-ov-file#copying-between-databases). 
+Informational commands and autocomplete won't work though.
 
 ## Examples
 
