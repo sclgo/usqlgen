@@ -9,12 +9,15 @@ Learn more about `usql` from its [README](https://github.com/xo/usql#readme).
 
 `usqlgen` builds on usql's extensibility to allow including arbitrary drivers.
 
-`usqlgen` is useful when you want to avoid editing `usql` code and:
+![Tests](https://github.com/sclgo/usqlgen/actions/workflows/go.yml/badge.svg)
+
+## When to use
+
+In most cases, using or contributing `usql` directly is best. `usqlgen` is useful when you want to avoid editing `usql` code and:
 
 - you want to use a database driver which is not publicly available or is under active development
 - you want to use alternative driver for a database supported by `usql`. 
-- you want to use a different version of a bundled driver
-- you want to use a fork of some of the bundled drivers
+- you want to use a different version or a fork of a bundled driver
 - you are working with a niche database which is not supported by `usql` yet
   - consider contributing the support to `usql` at some point
  
