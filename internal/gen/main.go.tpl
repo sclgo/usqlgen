@@ -2,7 +2,8 @@ package main
 
 {{if .Imports}}
 import (
-	"github.com/samber/lo"
+	"maps"
+	"slices"
 	"github.com/xo/usql/gen"
 	"github.com/xo/usql/drivers"
 )
@@ -14,7 +15,7 @@ import _ "{{$val}}"
 
 func main() {
 {{if .Imports}}
-	newDrivers := gen.RegisterNewDrivers(lo.Keys(drivers.Available()))
+	newDrivers := gen.RegisterNewDrivers(slices.Collect(maps.Keys(drivers.Available())))
 	for _, driver := range newDrivers {
 		drivers.Register(driver, drivers.Driver{
 		    Copy: gen.BuildSimpleCopy(gen.FixedPlaceholder("?")),
