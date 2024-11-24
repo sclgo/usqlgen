@@ -189,10 +189,24 @@ usqlgen build --import "github.com/kenshaw/go-impala"
 #	        but was required as: github.com/kenshaw/go-impala	       
 ```
 
-Forks that changed the module name to match their repository location can be imported with `--import`.
+Forks that changed the module name to match their repository location can be imported with `--import`,
+e.g. `github.com/sclgo/impala-go` .
 
 ### Using a specific version of a driver
 
-...
+If you are not happy with some driver or library version bundled with `usql`, you can change it in two ways.
+
+The preferred approach is adding `--get` parameter to execute `go get` while building.
+`go get` may adjust other dependencies for compatibility. 
+
+```shell
+usqlgen build --get "github.com/go-sql-driver/mysql@v1.7.1"
+```
+
+If the additional adjustments made by `go get` are not wanted, you may add a replace directive instead:
+
+```shell
+usqlgen build --replace "github.com/go-sql-driver/mysql=github.com/go-sql-driver/mysql@v1.7.1"
+```
 
 ## Docker examples

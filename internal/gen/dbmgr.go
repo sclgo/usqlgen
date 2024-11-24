@@ -4,23 +4,24 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/ansel1/merry/v2"
-	"github.com/samber/lo"
 	"github.com/xo/dburl"
 	"reflect"
+	"slices"
 	"strings"
 )
 
 // This file is copied as is in the generated usql wrapper.
 // It should not depend on other usqlgen packages, public or internal.
-// TODO Enforce this possibly with golang-ci.
+// TODO Enforce this possibly with golangci-lint.
 
 // For now, we also avoid depending on xo/usql, only on xo/dburl, to keep our dep tree small.
 // This may change in the future.
+// Avoid depending on libraries, not already used in usql.
 
 func FindNew(current []string, original []string) []string {
-	diff, _ := lo.Difference(current, original)
-	return diff
+	return slices.DeleteFunc(current, func(s string) bool {
+		return slices.Contains(original, s)
+	})
 }
 
 // RegisterNewDrivers registers in xo/dburl all database/sql.Drivers()
@@ -29,9 +30,12 @@ func RegisterNewDrivers(existing []string) []string {
 	newDrivers := FindNew(sql.Drivers(), existing)
 	for _, driver := range newDrivers {
 		dburl.Unregister(driver)
+
+		// xo/dburl registers a 2 char alias of all driver names longer than 2 chars
 		if len(driver) > 2 {
 			dburl.Unregister(driver[:2])
 		}
+
 		dburl.Register(GetScheme(driver))
 	}
 	return newDrivers
@@ -71,7 +75,7 @@ func BuildSimpleCopy(placeholder func(n int) string) func(ctx context.Context, d
 func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table string, batchSize int, placeholder func(n int) string) (int64, error) {
 	columns, err := rows.Columns()
 	if err != nil {
-		return 0, merry.Errorf("failed to fetch source rows columns: %w", err)
+		return 0, fmt.Errorf("failed to fetch source rows columns: %w", err)
 	}
 	clen := len(columns)
 	query := table
@@ -80,13 +84,13 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 		if leftParen == -1 {
 			colRows, err := db.QueryContext(ctx, "SELECT * FROM "+table+" WHERE 1=0")
 			if err != nil {
-				return 0, merry.Errorf("failed to execute query to determine target table columns: %w", err)
+				return 0, fmt.Errorf("failed to execute query to determine target table columns: %w", err)
 			}
 			// Can't use sclerr since dbmgr is standalone.
 			defer colRows.Close()
 			columns, err := colRows.Columns()
 			if err != nil {
-				return 0, merry.Errorf("failed to fetch target table columns: %w", err)
+				return 0, fmt.Errorf("failed to fetch target table columns: %w", err)
 			}
 			table += "(" + strings.Join(columns, ", ") + ")"
 		}
@@ -102,12 +106,12 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 	}
 	stmt, err := wrt.PrepareContext(ctx, query)
 	if err != nil {
-		return 0, merry.Errorf("failed to prepare insert query: %w", err)
+		return 0, fmt.Errorf("failed to prepare insert query: %w", err)
 	}
 	defer stmt.Close()
 	columnTypes, err := rows.ColumnTypes()
 	if err != nil {
-		return 0, merry.Errorf("failed to fetch source column types: %w", err)
+		return 0, fmt.Errorf("failed to fetch source column types: %w", err)
 	}
 	values := make([]interface{}, clen)
 	valueRefs := make([]reflect.Value, clen)
@@ -124,7 +128,7 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 	for rows.Next() {
 		err = rows.Scan(values...)
 		if err != nil {
-			return n, merry.Wrap(fmt.Errorf("failed to scan row: %w", err))
+			return n, fmt.Errorf("failed to scan row: %w", err)
 		}
 
 		for i := range values {
@@ -146,7 +150,7 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 	if len(actuals) > 0 {
 		finStmt, err := wrt.PrepareContext(ctx, makeQuery(clen, len(actuals)/clen, table, placeholder))
 		if err != nil {
-			return 0, merry.Errorf("failed to prepare insert query: %w", err)
+			return 0, fmt.Errorf("failed to prepare insert query: %w", err)
 		}
 		defer finStmt.Close()
 		rn, err := writeActuals(ctx, finStmt, actuals, &rowsAffectedSupported)
@@ -161,15 +165,15 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 	}
 
 	if err != nil {
-		return n, merry.Wrap(fmt.Errorf("failed to commit transaction: %w", err))
+		return n, fmt.Errorf("failed to commit transaction: %w", err)
 	}
-	return n, merry.Wrap(rows.Err())
+	return n, rows.Err()
 }
 
 func writeActuals(ctx context.Context, stmt *sql.Stmt, actuals []interface{}, rowsAffectedSupported *bool) (int64, error) {
 	res, err := stmt.ExecContext(ctx, actuals...)
 	if err != nil {
-		return 0, merry.Wrap(fmt.Errorf("failed to exec insert: %w", err))
+		return 0, fmt.Errorf("failed to exec insert: %w", err)
 	}
 
 	var rn int64

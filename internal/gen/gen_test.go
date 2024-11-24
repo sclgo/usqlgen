@@ -38,6 +38,7 @@ func TestInput_All(t *testing.T) {
 		}
 		stdoutStr := runGenAll(t, inp)
 		require.Contains(t, stdoutStr, "monetdb")
+		require.NotContains(t, stdoutStr, "github.com/MonetDB/MonetDB-Go/v2 v2.0.1")
 	})
 
 	t.Run("replaces", func(t *testing.T) {
@@ -48,6 +49,16 @@ func TestInput_All(t *testing.T) {
 		stdoutStr := runGenAll(t, inp)
 
 		require.Contains(t, stdoutStr, "monetdbscl")
+	})
+
+	t.Run("gets", func(t *testing.T) {
+		inp := gen.Input{
+			Imports: []string{"github.com/MonetDB/MonetDB-Go/v2"},
+			Gets:    []string{"github.com/MonetDB/MonetDB-Go/v2@v2.0.1"},
+		}
+		stdoutStr := runGenAll(t, inp)
+
+		require.Contains(t, stdoutStr, "github.com/MonetDB/MonetDB-Go/v2 v2.0.1")
 	})
 }
 
@@ -62,6 +73,13 @@ func runGenAll(t *testing.T, inp gen.Input) string {
 	cmd := exec.Command("go", "run", ".", "-c", `\drivers`)
 	cmd.Dir = tmpDir
 	var buf bytes.Buffer
+	cmd.Stdout = io.MultiWriter(&buf, os.Stdout)
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+	require.NoError(t, err, buf.String())
+
+	cmd = exec.Command("go", "list", "-m", "all")
+	cmd.Dir = tmpDir
 	cmd.Stdout = io.MultiWriter(&buf, os.Stdout)
 	cmd.Stderr = os.Stderr
 	err = cmd.Run()

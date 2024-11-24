@@ -22,3 +22,5 @@ usql
 
 # Go workspace file
 go.work
+
+.idea

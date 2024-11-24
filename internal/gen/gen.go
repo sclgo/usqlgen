@@ -30,6 +30,7 @@ const fileMode = 0700
 type Input struct {
 	Imports     []string
 	Replaces    []string
+	Gets        []string
 	WorkingDir  string
 	USQLModule  string
 	USQLVersion string
@@ -72,7 +73,8 @@ func (i Input) AllDownload() error {
 		return err
 	}
 
-	err = i.runGo("mod", "edit", "-go=1.22")
+	// TODO Check if already is 1.23+
+	err = i.runGo("mod", "edit", "-go=1.23")
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -94,6 +96,11 @@ func (i Input) AllDownload() error {
 	}
 
 	err = i.populateDbMgr()
+	if err != nil {
+		return err
+	}
+
+	err = i.doGoGet()
 	if err != nil {
 		return err
 	}
@@ -266,4 +273,14 @@ func (i Input) populateDbMgr() error {
 
 	err = os.WriteFile(filepath.Join(genPackageDir, "dbmgr.go"), dbMgrCode, fileMode)
 	return merry.Wrap(err)
+}
+
+func (i Input) doGoGet() error {
+	for _, gs := range i.Gets {
+		err := i.runGo("get", gs)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

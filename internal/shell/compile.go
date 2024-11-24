@@ -14,6 +14,7 @@ type CompileCommand struct {
 
 	Imports     cli.StringSlice
 	Replaces    cli.StringSlice
+	Gets        cli.StringSlice
 	USQLModule  string
 	USQLVersion string
 }
@@ -34,6 +35,7 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 	genInput := gen.Input{
 		Imports:     c.Imports.Value(),
 		Replaces:    c.Replaces.Value(),
+		Gets:        c.Gets.Value(),
 		WorkingDir:  workingDir,
 		USQLVersion: c.USQLVersion,
 		USQLModule:  c.USQLModule,
@@ -67,6 +69,11 @@ func (c *CompileCommand) MakeFlags() []cli.Flag {
 			Usage:       "adds a replace directive to the generated module with the same format as 'go mod edit -replace', can be repeated",
 			Aliases:     []string{"r"},
 			Destination: &c.Replaces,
+		},
+		&cli.StringSliceFlag{
+			Name:        "get",
+			Usage:       "adds or updates the provided module using go get",
+			Destination: &c.Gets,
 		},
 		&cli.StringFlag{
 			Name:        "usql-module",
