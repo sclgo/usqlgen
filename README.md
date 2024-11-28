@@ -45,11 +45,12 @@ Running without installing is useful in minimal container builds.
 If you don't have Go 1.21+, you can run `usqlgen` with Docker:
 
 ```shell
-docker run --rm golang:1.22 \
+docker run --rm golang:1.23 \
   go run github.com/sclgo/usqlgen@latest build ...add usqlgen build parameters here... -o - > usql
 ```
 
-See Docker examples section for more on this.
+Ensure that the Docker image matches the OS you are using - Windows container for Windows, Alpine for Alpine Linux, etc.
+The default golang image works for Debian-based Linux distributions like Ubuntu.
 
 ## Quickstart
 
@@ -180,33 +181,31 @@ Note that this works only with forks that keep the original module name -
 in this case `github.com/bippio/go-impala` - in their 
 [go.mod](https://github.com/kenshaw/go-impala/blob/master/go.mod).
 Such forks can only be used as replacements and can't be imported directly. 
-For example, the following doesn't work:
+For example, this command doesn't work:
 
 ```shell
 usqlgen build --import "github.com/kenshaw/go-impala"
-# the error output includes the following:
+# the error output includes:
 #	module declares its path as: github.com/bippio/go-impala
 #	        but was required as: github.com/kenshaw/go-impala	       
 ```
 
 Forks that changed the module name to match their repository location can be imported with `--import`,
-e.g. `github.com/sclgo/impala-go` .
+e.g. [github.com/sclgo/impala-go](https://github.com/sclgo/impala-go) .
 
 ### Using a specific version of a driver
 
 If you are not happy with some driver or library version bundled with `usql`, you can change it in two ways.
 
 The preferred approach is adding `--get` parameter to execute `go get` while building.
-`go get` may adjust other dependencies for compatibility. 
+`go get` [may adjust](https://go.dev/ref/mod#go-get) other dependencies to ensure compatibility with the updated version. 
 
 ```shell
 usqlgen build --get "github.com/go-sql-driver/mysql@v1.7.1"
 ```
 
-If the additional adjustments made by `go get` are not wanted, you may add a replace directive instead:
+If the adjustments made by `go get` are not wanted, you may add a replace directive instead:
 
 ```shell
 usqlgen build --replace "github.com/go-sql-driver/mysql=github.com/go-sql-driver/mysql@v1.7.1"
 ```
-
-## Docker examples
