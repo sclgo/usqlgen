@@ -11,6 +11,8 @@ import (
 
 type CompileCommand struct {
 	CommandBase
+	generator func(gen.Input) error
+	goBin     string
 
 	Imports     cli.StringSlice
 	Replaces    cli.StringSlice
@@ -40,7 +42,7 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 		USQLVersion: c.USQLVersion,
 		USQLModule:  c.USQLModule,
 	}
-	err = genInput.All()
+	err = c.generator(genInput)
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -53,7 +55,7 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 	args = append(args, compileArgs...)
 	args = append(args, c.Globals.PassthroughArgs...)
 	args = append(args, ".")
-	return run.Go(workingDir, args...)
+	return run.GoBin(workingDir, c.goBin, args...)
 }
 
 func (c *CompileCommand) MakeFlags() []cli.Flag {
@@ -93,6 +95,8 @@ func (c *CompileCommand) MakeFlags() []cli.Flag {
 
 func MakeCompileCmd(globals *GlobalParams) CompileCommand {
 	return CompileCommand{
+		generator:   gen.Input.All,
+		goBin:       "go",
 		CommandBase: Base(globals),
 	}
 }
