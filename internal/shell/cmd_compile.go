@@ -90,3 +90,9 @@ func (c *CompileCommand) MakeFlags() []cli.Flag {
 		},
 	}, c.CommandBase.MakeFlags()...)
 }
+
+func MakeCompileCmd(globals *GlobalParams) CompileCommand {
+	return CompileCommand{
+		CommandBase: Base(globals),
+	}
+}
