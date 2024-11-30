@@ -1,61 +1,10 @@
 package shell
 
+// Defines commands too short for their own file and the Commands object
+
 import (
-	"github.com/ansel1/merry/v2"
 	"github.com/urfave/cli/v2"
-	"os"
 )
-
-type GlobalParams struct {
-	Verbose         bool
-	PassthroughArgs []string
-}
-
-type CommandBase struct {
-	Globals *GlobalParams
-}
-
-func (c *CommandBase) MakeFlags() []cli.Flag {
-	return []cli.Flag{
-		&cli.BoolFlag{
-			Name:        "verbose",
-			Usage:       "enabled detailed, debug output",
-			Aliases:     []string{"v"},
-			Destination: &c.Globals.Verbose,
-		},
-	}
-}
-
-func (*CommandBase) Action(*cli.Context) error {
-	return merry.New("not implemented")
-}
-
-type BuildCommand struct {
-	CompileCommand
-
-	output string
-}
-
-func (c *BuildCommand) MakeFlags() []cli.Flag {
-	return append(c.CompileCommand.MakeFlags(),
-		&cli.StringFlag{
-			Name: "output",
-			Usage: `path to file where the executable will be written; 
-if value is -, binary will be written to standard output; if the path is a directory,
-executable with name 'usql' will be created there;`,
-			Aliases:     []string{"o"},
-			Destination: &c.output,
-			Value:       ".",
-		})
-}
-
-func (c *BuildCommand) Action(*cli.Context) error {
-	wd, err := os.Getwd()
-	if err != nil {
-		return merry.Wrap(err)
-	}
-	return c.CompileCommand.compile("build", "-o", wd)
-}
 
 type InstallCommand struct {
 	CompileCommand
@@ -117,11 +66,5 @@ func NewCommands(passthroughArgs []string) *Commands {
 		GenerateCmd: &GenerateCommand{
 			CompileCommand: MakeCompileCmd(globals),
 		},
-	}
-}
-
-func MakeCompileCmd(globals *GlobalParams) CompileCommand {
-	return CompileCommand{
-		CommandBase: Base(globals),
 	}
 }
