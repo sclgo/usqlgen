@@ -96,7 +96,7 @@ func (c *CompileCommand) MakeFlags() []cli.Flag {
 func MakeCompileCmd(globals *GlobalParams) CompileCommand {
 	return CompileCommand{
 		generator:   gen.Input.All,
-		goBin:       "go",
+		goBin:       run.FindGo(),
 		CommandBase: Base(globals),
 	}
 }

@@ -8,10 +8,20 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 func Go(workingDir string, goCmd ...string) error {
-	return GoBin(workingDir, "go", goCmd...)
+	return GoBin(workingDir, FindGo(), goCmd...)
+}
+
+func FindGo() string {
+	goBin := "go"
+	goroot := os.Getenv("GOROOT")
+	if goroot != "" {
+		goBin = filepath.Join(goroot, "bin", goBin)
+	}
+	return goBin
 }
 
 // GoBin runs a go or a go-like command with a custom binary, capturing error output in the error result
