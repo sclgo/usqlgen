@@ -7,7 +7,8 @@ inspired by [psql](https://www.postgresql.org/docs/current/app-psql.html).
 `usql` is great because it is a multi-platform, multi-database SQL client in a single binary. 
 Learn more about `usql` from its [README](https://github.com/xo/usql#readme).
 
-`usqlgen` builds on usql's extensibility to allow including arbitrary drivers.
+`usqlgen` builds on usql's extensibility to allow including arbitrary drivers and other customizations,
+without needing to fork.
 
 ![Tests](https://github.com/sclgo/usqlgen/actions/workflows/go.yml/badge.svg)
 
