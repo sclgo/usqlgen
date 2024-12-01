@@ -46,7 +46,9 @@ If you don't have Go 1.21+, you can run `usqlgen` with Docker:
 
 ```shell
 docker run --rm golang:1.23 \
-  go run github.com/sclgo/usqlgen@latest build ...add usqlgen build parameters here... -o - > usql
+  go run github.com/sclgo/usqlgen@latest build ...add parameters here... -o - > ./usql
+
+chmod +x ./usql
 ```
 
 Ensure that the Docker image matches the OS you are using - Windows container for Windows, Alpine for Alpine Linux, etc.
@@ -67,7 +69,7 @@ This creates `usql` executable in the current directory with its default built-i
 together with the driver for MonetDB.
 The additional driver is registered using a side-effect import (aka anonymous import)
 of the package in the `--import` parameter. The respective module is automatically
-determined by `go mod tidy` but can also be specified explicitly.
+determined by `go mod tidy` but can also be specified explicitly with `--get`.
 
 To connect to the database, refer to [`usql` documentation](https://github.com/xo/usql#readme).
 Unlike built-in databases, the `usql` DB URL (connection string) for the new database 
@@ -82,6 +84,9 @@ just built, run:
 ./usql monetdb:monetdb:password@localhost:50000/monetdb -c "select 'Hello World'"
 ```
 
+Above `monetdb` is repeated in the beginning of the DB URL because it is both the driver name,
+and the beginning of the DSN.
+
 You can try the same with databases or data engines like 
 [rqlite](https://github.com/rqlite/gorqlite), 
 [influxdb](https://pkg.go.dev/github.com/influxdata/influxdb-iox-client-go/v2/ioxsql),
@@ -89,15 +94,16 @@ You can try the same with databases or data engines like
 
 `usqlgen` also allows you to use alternative drivers of supported databases. Examples include:
 
-- [github.com/kprotoss/go-impala](https://github.com/kprotoss/go-impala) - modernized variant of the built-in Impala driver
+- [github.com/sclgo/impala-go](https://github.com/sclgo/impala-go) - modernized variant of the built-in Impala driver
 - [github.com/mailru/go-clickhouse/v2](https://github.com/mailru/go-clickhouse) - HTTP-only alternative of the built-in Clickhouse driver
 
 For more options, see `usqlgen --help` or review the examples below.
 
 ## Limitations
 
-Many `usql` [backslash (meta) commands](https://github.com/xo/usql?tab=readme-ov-file#backslash-commands) will still work 
-with new databases, including [cross-database `\copy`](https://github.com/xo/usql?tab=readme-ov-file#copying-between-databases). 
+Most `usql` [backslash (meta) commands](https://github.com/xo/usql?tab=readme-ov-file#backslash-commands) work 
+with new drivers added with `--import`, including 
+[cross-database `\copy`](https://github.com/xo/usql?tab=readme-ov-file#copying-between-databases). 
 Informational commands and autocomplete won't work though.
 
 ## Examples
@@ -132,8 +138,9 @@ In this case, the binary will be smaller and faster to build.
 Review <https://github.com/xo/usql?tab=readme-ov-file#building> for build tags, supported
 by `usql` and the documentation of `go build` and `go install` for other options.
 
-Go environment variables like GOPRIVATE or CGO_ENABLED affect the compilation
-as usual.
+Go environment variables like `GOPRIVATE` or `CGO_ENABLED` affect the compilation
+as usual. For example, `GOPRIVATE` allows you to compile `usql` with drivers which
+are not publicly available.
 
 ### Using a driver fork
 
@@ -142,13 +149,13 @@ SQL driver fork while keeping the `usql` configuration for the target database.
 Information commands, schema exploration, and autocomplete will continue to work
 if the fork remains compatible enough with the original.
 
-For example, one of the authora of `usql` created a SQL driver 
+For example, one of the authors of `usql` created a SQL driver 
 [github.com/kenshaw/go-impala](https://github.com/kenshaw/go-impala),
 fork of the abandoned Apache Impala driver currently used in `usql` - 
 [github.com/bippio/go-impala](https://github.com/bippio/go-impala).
 
 The fork was needed, because the abandoned driver used in `usql` 
-doesn't work in the current Go release:
+doesn't work in recent Go releases:
 
 ```shell
 go install -tags impala github.com/xo/usql@latest
@@ -168,7 +175,7 @@ To test the compiled `usql` binary:
 docker run -d --rm -p 21050:21050 --memory=4096m \
   apache/kudu:impala-latest impala
   
-# Connect to local Impala like with the original driver
+# Connect to local Impala
 # We use a usql DB URL as opposed to a driver:dsn URL because we use a built-in driver config
 ./usql impala://localhost:21050 -c "select 'Hello World'" -t -q
 # prints Hello World
