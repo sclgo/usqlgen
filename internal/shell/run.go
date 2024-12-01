@@ -44,11 +44,13 @@ func makeApp(passthroughArgs []string, writer, errWriter io.Writer) *cli.App {
 		ErrWriter:   errWriter,
 		Commands: []*cli.Command{
 			{
-				Name:   "build",
-				Usage:  "builds a usql binary distribution in the given directory",
-				Args:   false,
-				Flags:  commands.BuildCmd.MakeFlags(),
-				Action: commands.BuildCmd.Action,
+				Name:  "build",
+				Usage: "builds a usql binary distribution in the given directory",
+				Args:  false,
+				Flags: commands.BuildCmd.MakeFlags(),
+				Action: func(context *cli.Context) error {
+					return commands.BuildCmd.Action(writer)
+				},
 			},
 			{
 				Name:   "install",

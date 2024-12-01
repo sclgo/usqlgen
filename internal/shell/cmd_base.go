@@ -1,7 +1,6 @@
 package shell
 
 import (
-	"github.com/ansel1/merry/v2"
 	"github.com/urfave/cli/v2"
 )
 
@@ -23,8 +22,4 @@ func (c *CommandBase) MakeFlags() []cli.Flag {
 			Destination: &c.Globals.Verbose,
 		},
 	}
-}
-
-func (*CommandBase) Action(*cli.Context) error {
-	return merry.New("not implemented")
 }
