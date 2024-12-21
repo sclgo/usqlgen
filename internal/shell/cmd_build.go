@@ -1,11 +1,13 @@
 package shell
 
 import (
+	"io"
+	"os"
+	"path/filepath"
+
 	"github.com/ansel1/merry/v2"
 	"github.com/sclgo/usqlgen/pkg/sclerr"
 	"github.com/urfave/cli/v2"
-	"io"
-	"os"
 )
 
 type BuildCommand struct {
@@ -27,11 +29,12 @@ executable with name 'usql' will be created there;`,
 		})
 }
 
-func (c *BuildCommand) Action(writer io.Writer) error {
-	if writer == nil {
-		writer = os.Stdout
+// Action executes the build command using the given stdout
+func (c *BuildCommand) Action(stdout io.Writer) error {
+	if stdout == nil {
+		stdout = os.Stdout
 	}
-	
+
 	destination := c.output
 	if destination == "" {
 		var err error
@@ -43,21 +46,21 @@ func (c *BuildCommand) Action(writer io.Writer) error {
 
 	if c.output == "-" {
 		// NB: Find a way to avoid creating another temp file
-		tmpFile, err := os.CreateTemp("", "usqlgen")
+		destination, err := touchTempFile()
 		if err != nil {
-			return merry.Wrap(err)
-		}
-		err = tmpFile.Close()
-		if err != nil {
-			return merry.Wrap(err)
+			return err
 		}
 		defer func() {
-			_ = os.Remove(tmpFile.Name())
+			_ = os.Remove(destination)
 		}()
-		destination = tmpFile.Name()
 	}
 
-	err := c.CompileCommand.compile("build", "-o", destination)
+	destination, err := filepath.Abs(destination)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	err = c.CompileCommand.compile("build", "-o", destination)
 	if err != nil {
 		return err
 	}
@@ -69,9 +72,21 @@ func (c *BuildCommand) Action(writer io.Writer) error {
 			return merry.Wrap(err)
 		}
 		defer sclerr.CloseQuietly(destFile)
-		_, err = io.Copy(writer, destFile)
+		_, err = io.Copy(stdout, destFile)
 	}
 
 	return err
 
+}
+
+func touchTempFile() (string, error) {
+	tmpFile, err := os.CreateTemp("", "usqlgen")
+	if err != nil {
+		return "", merry.Wrap(err)
+	}
+	err = tmpFile.Close()
+	if err != nil {
+		return "", merry.Wrap(err)
+	}
+	return tmpFile.Name(), nil
 }
