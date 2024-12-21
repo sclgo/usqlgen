@@ -57,10 +57,11 @@ The default golang image works for Debian-based Linux distributions like Ubuntu.
 
 ## Quickstart
 
-To install `usql` with support for an additional driver, review your driver documentation
+To install `usql` with support for an additional driver, first review your driver documentation
 to find the Go driver name, DSN format and package that needs to be imported to install the
 driver. Let's take for example, [MonetDB](https://github.com/MonetDB/MonetDB-Go#readme),
-which is not in `usql` yet:
+which is not in `usql` yet. The docs state that the package that needs to be imported is
+`github.com/MonetDB/MonetDB-Go/v2`. We use this command to build `usql`:
 
 ```shell
 usqlgen build --import "github.com/MonetDB/MonetDB-Go/v2"
@@ -68,14 +69,15 @@ usqlgen build --import "github.com/MonetDB/MonetDB-Go/v2"
 
 This creates `usql` executable in the current directory with its default built-in drivers 
 together with the driver for MonetDB.
-The additional driver is registered using a side-effect import (aka anonymous import)
+The additional driver is registered using a side-effect import (aka [blank import](https://go.dev/doc/effective_go#blank_import))
 of the package in the `--import` parameter. The respective module is automatically
-determined by `go mod tidy` but can also be specified explicitly with `--get`.
+determined but can also be specified explicitly with `--get`.
 
 To connect to the database, refer to [`usql` documentation](https://github.com/xo/usql#readme).
 Unlike built-in databases, the `usql` DB URL (connection string) for the new database 
-is in the form `driver:dsn`. For example, to connect to MonetDB with the binary we
-just built, run:
+is in the form `driverName:dsn`. For example, [MonetDB docs](https://github.com/MonetDB/MonetDB-Go#readme)
+state that the driver name is `monetdb` and the DSN format is `username:password@hostname:50000/database`.
+So to connect to MonetDB with the binary we just built, run:
 
 ```shell
 
@@ -85,8 +87,8 @@ just built, run:
 ./usql monetdb:monetdb:password@localhost:50000/monetdb -c "select 'Hello World'"
 ```
 
-Above `monetdb` is repeated in the beginning of the DB URL because it is both the driver name,
-and the beginning of the DSN.
+Above `monetdb` is repeated in the beginning of the DB URL because it is both the Go driver name,
+and the admin username in the beginning of the DSN.
 
 You can try the same with databases or data engines like 
 [rqlite](https://github.com/rqlite/gorqlite), 
