@@ -37,16 +37,13 @@ func (c *BuildCommand) Action(stdout io.Writer) error {
 
 	destination := c.output
 	if destination == "" {
-		var err error
-		destination, err = os.Getwd()
-		if err != nil {
-			return merry.Wrap(err)
-		}
+		destination = "." // will replaced by absolute path below
 	}
 
 	if c.output == "-" {
 		// NB: Find a way to avoid creating another temp file
-		destination, err := touchTempFile()
+		var err error
+		destination, err = touchTempFile()
 		if err != nil {
 			return err
 		}

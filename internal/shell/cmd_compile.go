@@ -1,17 +1,19 @@
 package shell
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
+
 	"github.com/ansel1/merry/v2"
 	"github.com/sclgo/usqlgen/internal/gen"
 	"github.com/sclgo/usqlgen/internal/run"
 	"github.com/urfave/cli/v2"
-	"os"
-	"path/filepath"
 )
 
 type CompileCommand struct {
 	CommandBase
-	generator func(gen.Input) error
+	generator func(gen.Input) (gen.Result, error)
 	goBin     string
 
 	Imports     cli.StringSlice
@@ -42,7 +44,7 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 		USQLVersion: c.USQLVersion,
 		USQLModule:  c.USQLModule,
 	}
-	err = c.generator(genInput)
+	genResult, err := c.generator(genInput)
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -53,6 +55,9 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 
 	args := []string{compileCmd}
 	args = append(args, compileArgs...)
+	// -ldflags can be repeated so this doesn't interfere with PassthroughArgs
+	ldflags := fmt.Sprintf(`-X github.com/xo/usql/text.CommandVersion=%s-usqlgen`, genResult.DownloadedUsqlVersion)
+	args = append(args, "-ldflags", ldflags)
 	args = append(args, c.Globals.PassthroughArgs...)
 	args = append(args, ".")
 	return run.GoBin(workingDir, c.goBin, args...)
@@ -95,7 +100,7 @@ func (c *CompileCommand) MakeFlags() []cli.Flag {
 
 func MakeCompileCmd(globals *GlobalParams) CompileCommand {
 	return CompileCommand{
-		generator:   gen.Input.All,
+		generator:   gen.Input.AllDownload,
 		goBin:       run.FindGo(),
 		CommandBase: Base(globals),
 	}
