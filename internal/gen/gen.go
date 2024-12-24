@@ -16,7 +16,6 @@ import (
 	"github.com/sclgo/usqlgen/internal/run"
 	"github.com/sclgo/usqlgen/pkg/lang"
 	"github.com/sclgo/usqlgen/pkg/sclerr"
-	"github.com/xyproto/unzip"
 	"modernc.org/fileutil"
 )
 
@@ -152,7 +151,7 @@ func (i Input) copyOriginalFromZip(downloadInfo map[string]any) error {
 
 	downloadZip := downloadZipAny.(string)
 	unpackedZip := filepath.Join(i.WorkingDir, "zip")
-	err := unzip.Extract(downloadZip, unpackedZip)
+	err := ExtractZip(downloadZip, unpackedZip)
 	if err != nil {
 		return merry.Wrap(err)
 	}

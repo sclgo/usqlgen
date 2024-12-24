@@ -16,7 +16,7 @@ import (
 
 // Tests of the overall build process
 
-// TestVersion is an integration test --version in the produced binary
+// TestVersion is an integration test for --version in the produced binary
 // This test complements the unit test in shell/cmd_build_test.go. The unit test
 // validates only if the version is injected in the build process but only this
 // test confirms that usql will use it.
