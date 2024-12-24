@@ -5,7 +5,7 @@ a universal single-binary SQL CLI, built by the [github.com/xo](https://github.c
 inspired by [psql](https://www.postgresql.org/docs/current/app-psql.html).
 
 `usql` is great because it is a multi-platform, multi-database SQL client in a single binary. 
-Learn more about `usql` from its [README](https://github.com/xo/usql#readme).
+Learn more about it from its [README](https://github.com/xo/usql#readme).
 
 `usqlgen` builds on usql's extensibility to allow including arbitrary drivers and other customizations,
 without needing to fork.
@@ -26,6 +26,12 @@ The Examples section details those usecases.
 
 `usqlgen` is itself inspired by the 
 [OpenTelemetry Collector builder](https://opentelemetry.io/docs/collector/custom-collector/).
+
+> [!IMPORTANT]
+> [usql](https://github.com/xo/usql) authors are aware of this project but support
+> only [their regular releases](https://github.com/xo/usql?tab=readme-ov-file#installing).
+> Issues that appear on builds produced by `usqlgen` should be reported on this repository.
+> Report issues on https://github.com/xo/usql/issues only if you can reproduce them on a regular release.
 
 ## Installing
 
@@ -219,3 +225,9 @@ If the adjustments made by `go get` are not wanted, you may add a replace direct
 ```shell
 usqlgen build --replace "github.com/go-sql-driver/mysql=github.com/go-sql-driver/mysql@v1.7.1"
 ```
+
+## Support
+
+If you encounter problems, please review [open issues](https://github.com/xo/usqlgen/issues) and create one if nessesary.
+Note that [usql](https://github.com/xo/usql) authors are aware of this project but support
+only [their regular releases](https://github.com/xo/usql?tab=readme-ov-file#installing).
