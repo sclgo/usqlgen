@@ -2,14 +2,15 @@ package gen_test
 
 import (
 	"bytes"
-	"github.com/samber/lo"
-	"github.com/sclgo/usqlgen/internal/gen"
-	"github.com/sclgo/usqlgen/pkg/fi"
-	"github.com/stretchr/testify/require"
 	"io"
 	"os"
 	"os/exec"
 	"testing"
+
+	"github.com/samber/lo"
+	"github.com/sclgo/usqlgen/internal/gen"
+	"github.com/sclgo/usqlgen/pkg/fi"
+	"github.com/stretchr/testify/require"
 )
 
 func TestInput_Main(t *testing.T) {
@@ -92,16 +93,18 @@ func TestInput_AllDownload(t *testing.T) {
 	fi.SkipLongTest(t)
 	inp := gen.Input{
 		Imports:     []string{"github.com/MonetDB/MonetDB-Go/v2"},
-		USQLVersion: "master",
+		USQLVersion: "v0.19.14",
 	}
 	var err error
 	tmpDir := t.TempDir()
 	inp.WorkingDir = tmpDir
-	err = inp.AllDownload()
+	result, err := inp.AllDownload()
 	require.NoError(t, err)
 	entries, err := os.ReadDir(tmpDir)
 	require.NoError(t, err)
 	require.True(t, lo.ContainsBy(entries, func(item os.DirEntry) bool {
 		return item.Name() == "main.go"
 	}))
+
+	require.Equal(t, inp.USQLVersion, result.DownloadedUsqlVersion)
 }

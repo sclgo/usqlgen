@@ -1,9 +1,10 @@
 package shell
 
 import (
+	"testing"
+
 	"github.com/sclgo/usqlgen/internal/gen"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestCompile(t *testing.T) {
@@ -11,9 +12,9 @@ func TestCompile(t *testing.T) {
 	t.Run("create tmp dir", func(t *testing.T) {
 		cmd := CompileCommand{
 			CommandBase: Base(new(GlobalParams)),
-			generator: func(input gen.Input) error {
+			generator: func(input gen.Input) (gen.Result, error) {
 				require.DirExists(t, input.WorkingDir)
-				return nil
+				return gen.Result{}, nil
 			},
 			goBin: "echo",
 		}
