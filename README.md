@@ -11,6 +11,7 @@ Learn more about it from its [README](https://github.com/xo/usql#readme).
 without needing to fork.
 
 ![Tests](https://github.com/sclgo/usqlgen/actions/workflows/go.yml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/sclgo/usqlgen)](https://goreportcard.com/report/github.com/sclgo/usqlgen)
 
 ## When to use
 
