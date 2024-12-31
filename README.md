@@ -229,6 +229,6 @@ usqlgen build --replace "github.com/go-sql-driver/mysql=github.com/go-sql-driver
 
 ## Support
 
-If you encounter problems, please review [open issues](https://github.com/xo/usqlgen/issues) and create one if nessesary.
+If you encounter problems, please review [open issues](https://github.com/sclgo/usqlgen/issues) and create one if nessesary.
 Note that [usql](https://github.com/xo/usql) authors are aware of this project but support
 only [their regular releases](https://github.com/xo/usql?tab=readme-ov-file#installing).
