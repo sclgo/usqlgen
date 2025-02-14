@@ -4,10 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/xo/dburl"
+	"net/url"
 	"reflect"
 	"slices"
 	"strings"
+
+	"github.com/xo/dburl"
 )
 
 // This file is copied as is in the generated usql wrapper.
@@ -43,10 +45,22 @@ func RegisterNewDrivers(existing []string) []string {
 
 func GetScheme(driver string) dburl.Scheme {
 	return dburl.Scheme{
-		Driver:    driver,
-		Generator: dburl.GenOpaque,
-		Opaque:    true,
+		Driver: driver,
+		Generator: func(u *dburl.URL) (string, string, error) {
+			// same as dburl.GenOpaque but accepts empty opaque part.
+			// Empty DSN is accepted by some DB drivers like go-duckdb.
+			return u.Opaque + genQueryOptions(u.Query()), "", nil
+		},
+		Opaque: true,
 	}
+}
+
+// genQueryOptions generates standard query options.
+func genQueryOptions(q url.Values) string {
+	if s := q.Encode(); s != "" {
+		return "?" + s
+	}
+	return ""
 }
 
 func FixedPlaceholder(placeholder string) func(int) string {
@@ -55,10 +69,12 @@ func FixedPlaceholder(placeholder string) func(int) string {
 	}
 }
 
+// DbWriter is the common subset between *sql.DB and *sql.Tx used by the main loop of SimpleCopyWithInsert
 type DbWriter interface {
 	PrepareContext(ctx context.Context, query string) (*sql.Stmt, error)
 }
 
+// DB is the subset of *sql.DB used by SimpleCopyWithInsert
 type DB interface {
 	DbWriter
 	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
@@ -66,12 +82,18 @@ type DB interface {
 }
 
 // BuildSimpleCopy builds a copy handler based on insert.
+// The result func matches the signature required by github.com/xo/usql/drivers.Driver.Copy
+// placeholder parameter is currently hardcoded on main.go.tpl but may be configurable in the future.
 func BuildSimpleCopy(placeholder func(n int) string) func(ctx context.Context, db *sql.DB, rows *sql.Rows, table string) (int64, error) {
 	return func(ctx context.Context, db *sql.DB, rows *sql.Rows, table string) (int64, error) {
 		return SimpleCopyWithInsert(ctx, db, rows, table, 10, placeholder)
 	}
 }
 
+// SimpleCopyWithInsert implements usql \copy
+// It is similar to usql defaults implementation, but it tries to adjust to some runtime errors
+// by trying alternative database features. usql never does that because the usql copy implementation
+// is always adapted to the specific database.
 func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table string, batchSize int, placeholder func(n int) string) (int64, error) {
 	columns, err := rows.Columns()
 	if err != nil {
