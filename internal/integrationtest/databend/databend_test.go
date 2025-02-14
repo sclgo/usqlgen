@@ -3,14 +3,16 @@ package databend_test
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/samber/lo"
 	"github.com/sclgo/usqlgen/internal/gen"
 	"github.com/sclgo/usqlgen/internal/integrationtest"
 	"github.com/sclgo/usqlgen/pkg/fi"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
-	"testing"
 )
 
 const Username = "databend"
@@ -45,7 +47,9 @@ func TestDatabend(t *testing.T) {
 	ctx := context.Background()
 	c := fi.NoError(Setup(ctx)).Require(t)
 
-	defer fi.NoErrorF(fi.Bind(c.Terminate, ctx), t)
+	t.Cleanup(func() {
+		assert.NoError(t, c.Terminate(ctx))
+	})
 	dsn := GetDsn(ctx, c)
 
 	inp := gen.Input{

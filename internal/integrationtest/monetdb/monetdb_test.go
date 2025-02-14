@@ -3,13 +3,15 @@ package monetdb
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/samber/lo"
 	"github.com/sclgo/usqlgen/internal/gen"
 	"github.com/sclgo/usqlgen/internal/integrationtest"
 	"github.com/sclgo/usqlgen/pkg/fi"
+	"github.com/stretchr/testify/assert"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
-	"testing"
 
 	_ "github.com/MonetDB/MonetDB-Go/src"
 )
@@ -22,7 +24,9 @@ func TestMonetdb(t *testing.T) {
 	integrationtest.IntegrationOnly(t)
 	ctx := context.Background()
 	c := fi.NoError(Setup(ctx)).Require(t)
-	defer fi.NoErrorF(fi.Bind(c.Terminate, ctx), t)
+	t.Cleanup(func() {
+		assert.NoError(t, c.Terminate(ctx))
+	})
 
 	dsn := GetDsn(ctx, c)
 	integrationtest.SanityPing(ctx, t, dsn, "monetdb")
