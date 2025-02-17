@@ -6,6 +6,7 @@ import (
 	"slices"
 	"github.com/xo/usql/gen"
 	"github.com/xo/usql/drivers"
+	"github.com/xo/usql/env"
 )
 {{end}}
 
@@ -21,6 +22,8 @@ func main() {
 		    Copy: gen.BuildSimpleCopy(gen.FixedPlaceholder("?")),
 		})
 	}
+	// The default prompt is sometimes too long for DBs with opaque URLs
+	env.Set("PROMPT1", "%S%N%m%R%# ")
 {{end}}
 	origMain()
 }
