@@ -3,6 +3,9 @@ package shell
 // Defines commands too short for their own file and the Commands object
 
 import (
+	"os"
+
+	"github.com/ansel1/merry/v2"
 	"github.com/urfave/cli/v2"
 )
 
@@ -33,7 +36,12 @@ if value is -, tar archive will be written to standard output`,
 }
 
 func (c *GenerateCommand) Action(*cli.Context) error {
-	return c.CompileCommand.compile("")
+	err := os.MkdirAll(c.output, 0700)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+	_, err = c.generate(c.output)
+	return err
 }
 
 type Commands struct {

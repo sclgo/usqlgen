@@ -36,15 +36,7 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 	if err != nil {
 		return merry.Wrap(err)
 	}
-	genInput := gen.Input{
-		Imports:     c.Imports.Value(),
-		Replaces:    c.Replaces.Value(),
-		Gets:        c.Gets.Value(),
-		WorkingDir:  workingDir,
-		USQLVersion: c.USQLVersion,
-		USQLModule:  c.USQLModule,
-	}
-	genResult, err := c.generator(genInput)
+	genResult, err := c.generate(workingDir)
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -61,6 +53,18 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 	args = append(args, c.Globals.PassthroughArgs...)
 	args = append(args, ".")
 	return run.GoBin(workingDir, c.goBin, args...)
+}
+
+func (c *CompileCommand) generate(workingDir string) (gen.Result, error) {
+	genInput := gen.Input{
+		Imports:     c.Imports.Value(),
+		Replaces:    c.Replaces.Value(),
+		Gets:        c.Gets.Value(),
+		WorkingDir:  workingDir,
+		USQLVersion: c.USQLVersion,
+		USQLModule:  c.USQLModule,
+	}
+	return c.generator(genInput)
 }
 
 func (c *CompileCommand) MakeFlags() []cli.Flag {
