@@ -48,8 +48,6 @@ You can also run usqlgen without installing:
 go run github.com/sclgo/usqlgen@latest
 ```
 
-Running without installing is useful in minimal container builds. 
-
 If you don't have Go 1.21+, you can run `usqlgen` with Docker:
 
 ```shell
@@ -65,7 +63,7 @@ The default golang image works for Debian-based Linux distributions like Ubuntu.
 ## Quickstart
 
 To install `usql` with support for an additional driver, first review your driver documentation
-to find the Go driver name, DSN format and package that needs to be imported to install the
+to find the Go driver name, DSN ([Data Source Name](https://pkg.go.dev/database/sql#Open)) format and package that needs to be imported to install the
 driver. Let's take for example, [MonetDB](https://github.com/MonetDB/MonetDB-Go#readme),
 which is not in `usql` yet. The docs state that the package that needs to be imported is
 `github.com/MonetDB/MonetDB-Go/v2`. We use this command to build `usql`:
@@ -80,7 +78,6 @@ The additional driver is registered using a side-effect import (aka [blank impor
 of the package in the `--import` parameter. The respective module is automatically
 determined but can also be specified explicitly with `--get`.
 
-To connect to the database, refer to [`usql` documentation](https://github.com/xo/usql#readme).
 Unlike built-in databases, the `usql` DB URL (connection string) for the new database 
 is in the form `driverName:dsn`. For example, [MonetDB docs](https://github.com/MonetDB/MonetDB-Go#readme)
 state that the driver name is `monetdb` and the DSN format is `username:password@hostname:50000/database`.
@@ -104,8 +101,9 @@ You can try the same with databases or data engines like
 
 `usqlgen` also allows you to use alternative drivers of supported databases. Examples include:
 
-- [github.com/sclgo/impala-go](https://github.com/sclgo/impala-go) - modernized variant of the built-in Impala driver
+- [github.com/sclgo/impala-go](https://github.com/sclgo/impala-go) - modernized variant of the built-in [Apache Impala](https://impala.apache.org/) driver
 - [github.com/mailru/go-clickhouse/v2](https://github.com/mailru/go-clickhouse) - HTTP-only alternative of the built-in Clickhouse driver
+- [github.com/sclgo/duckdb-adbc-go](https://github.com/sclgo/duckdb-adbc-go) - alternative driver for DuckDB that uses [its ADBC C API](https://duckdb.org/docs/clients/adbc)
 
 For more options, see `usqlgen --help` or review the examples below.
 
@@ -115,6 +113,12 @@ Most `usql` [backslash (meta) commands](https://github.com/xo/usql?tab=readme-ov
 with new drivers added with `--import`, including 
 [cross-database `\copy`](https://github.com/xo/usql?tab=readme-ov-file#copying-between-databases). 
 Informational commands and autocomplete won't work though.
+
+`usql` requires that connection strings are valid URIs or URLs, at least according to the Go `net/url` parsing algorithm.
+If you get an error that parameter in the form `driverName:dsn` can't be parsed as a URL,
+start `usql` without a connection string - in interactive mode or with the `-f` parameter. `usql` will start not connected to a DB.
+Then use the `\connect` command with two arguments driverName and dsn. In the `monetdb` example above, that would be:
+`\connect monetdb monetdb:password@localhost:50000/monetdb`
 
 ## Examples
 
