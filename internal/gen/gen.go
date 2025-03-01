@@ -34,6 +34,8 @@ type Input struct {
 	WorkingDir  string
 	USQLModule  string
 	USQLVersion string
+
+	IncludeSemicolon bool
 }
 
 type Result struct {

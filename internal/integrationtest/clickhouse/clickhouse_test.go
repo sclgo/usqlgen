@@ -4,18 +4,19 @@ package clickhouse_test
 
 import (
 	"fmt"
-	"github.com/samber/lo"
-	"github.com/sclgo/usqlgen/internal/gen"
-	"github.com/sclgo/usqlgen/internal/integrationtest"
-	"github.com/sclgo/usqlgen/pkg/fi"
-	"github.com/sclgo/usqlgen/pkg/sclerr"
-	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"testing"
+
+	"github.com/samber/lo"
+	"github.com/sclgo/usqlgen/internal/gen"
+	it "github.com/sclgo/usqlgen/internal/integrationtest"
+	"github.com/sclgo/usqlgen/pkg/fi"
+	"github.com/sclgo/usqlgen/pkg/sclerr"
+	"github.com/stretchr/testify/require"
 )
 
 func TestClickhouse(t *testing.T) {
@@ -30,7 +31,7 @@ func TestClickhouse(t *testing.T) {
 	dsn := "chhttp:http://localhost/"
 
 	t.Run("basic query", func(t *testing.T) {
-		integrationtest.CheckGenAll(t, inp, dsn, `select 'Hello World'`)
+		it.CheckGenAll(t, inp, dsn, `select 'Hello World'`)
 	})
 
 	t.Run("copy", func(t *testing.T) {
@@ -40,15 +41,15 @@ func TestClickhouse(t *testing.T) {
 		err := inp.All()
 		require.NoError(t, err)
 
-		_, _ = integrationtest.RunGeneratedUsqlE(dsn, "create table dest(col1 varchar, col2 varchar) PRIMARY KEY col1;", tmpDir)
+		_, _ = it.RunGeneratedUsqlE(dsn, "create table dest(col1 varchar, col2 varchar) PRIMARY KEY col1;", tmpDir)
 		// ignoring error because usql -c, for some reason, fails if RowsAffected returns error
 		// chhttp returns error from RowsAffected because it doesn't support it
 
 		destExpression := "INSERT INTO dest VALUES (?, ?)"
 		copyCmd := fmt.Sprintf(`\copy csvq:. %s 'select string(1), string(2)' '%s'`, dsn, destExpression)
-		output := integrationtest.RunGeneratedUsql(t, "", copyCmd, tmpDir)
+		output := it.RunGeneratedUsql(t, "", copyCmd, tmpDir, "csvq")
 		require.Contains(t, output, "COPY")
-		output = integrationtest.RunGeneratedUsql(t, dsn, "select * from dest", tmpDir)
+		output = it.RunGeneratedUsql(t, dsn, "select * from dest", tmpDir)
 		require.Contains(t, output, "(1 row)")
 	})
 }

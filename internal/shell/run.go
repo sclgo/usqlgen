@@ -66,6 +66,18 @@ func makeApp(passthroughArgs []string, writer, errWriter io.Writer) *cli.App {
 				Flags:  commands.GenerateCmd.MakeFlags(),
 				Action: commands.GenerateCmd.Action,
 			},
+			{
+				Name:  "list",
+				Usage: "subcommands list various options and attributes",
+				Subcommands: []*cli.Command{
+					{
+						Name:   "options",
+						Usage:  "list options available for --dboptions parameter. Each option modifies how imported databases are treated.",
+						Args:   false,
+						Action: listOptions,
+					},
+				},
+			},
 		},
 	}
 	app.Usage = app.Description
