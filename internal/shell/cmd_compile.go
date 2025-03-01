@@ -21,6 +21,7 @@ type CompileCommand struct {
 	Gets        cli.StringSlice
 	USQLModule  string
 	USQLVersion string
+	DbOptions   cli.StringSlice
 }
 
 func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error {
@@ -64,6 +65,10 @@ func (c *CompileCommand) generate(workingDir string) (gen.Result, error) {
 		USQLVersion: c.USQLVersion,
 		USQLModule:  c.USQLModule,
 	}
+	err := applyOptionsFromNames(c.DbOptions.Value(), &genInput)
+	if err != nil {
+		return gen.Result{}, err
+	}
 	return c.generator(genInput)
 }
 
@@ -98,6 +103,11 @@ func (c *CompileCommand) MakeFlags() []cli.Flag {
 			Aliases:     []string{"uv"},
 			Value:       "latest",
 			Destination: &c.USQLVersion,
+		},
+		&cli.StringSliceFlag{
+			Name:        "db-option",
+			Usage:       `option that modifies configuration for newly imported drivers; use "usqlgen list options" to see what options are available`,
+			Destination: &c.DbOptions,
 		},
 	}, c.CommandBase.MakeFlags()...)
 }

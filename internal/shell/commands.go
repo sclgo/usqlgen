@@ -26,9 +26,8 @@ type GenerateCommand struct {
 func (c *GenerateCommand) MakeFlags() []cli.Flag {
 	return append(c.CompileCommand.MakeFlags(),
 		&cli.StringFlag{
-			Name: "output",
-			Usage: `path to directory where the generated code will be written; 
-if value is -, tar archive will be written to standard output`,
+			Name:        "output",
+			Usage:       `path to directory where the generated code will be written`,
 			Aliases:     []string{"o"},
 			Destination: &c.output,
 			Value:       ".",

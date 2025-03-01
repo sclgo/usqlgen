@@ -101,6 +101,7 @@ You can try the same with databases or data engines like
 
 `usqlgen` also allows you to use alternative drivers of supported databases. Examples include:
 
+- [github.com/microsoft/gocosmos](https://github.com/microsoft/gocosmos) - an official copy/fork of the unofficial driver included in `usql`
 - [github.com/sclgo/impala-go](https://github.com/sclgo/impala-go) - modernized variant of the built-in [Apache Impala](https://impala.apache.org/) driver
 - [github.com/mailru/go-clickhouse/v2](https://github.com/mailru/go-clickhouse) - HTTP-only alternative of the built-in Clickhouse driver
 - [github.com/sclgo/duckdb-adbc-go](https://github.com/sclgo/duckdb-adbc-go) - alternative driver for DuckDB that uses [its ADBC C API](https://duckdb.org/docs/clients/adbc)

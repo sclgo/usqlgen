@@ -72,7 +72,7 @@ func TestImpala(t *testing.T) {
 
 			destExpression := "INSERT INTO dest VALUES (?, ?)"
 			copyCmd := fmt.Sprintf(`\copy csvq:. impala:%s 'select string(1), string(2)' '%s'`, dsn, destExpression)
-			output = integrationtest.RunGeneratedUsql(t, "", copyCmd, tmpDir)
+			output = integrationtest.RunGeneratedUsql(t, "", copyCmd, tmpDir, "csvq")
 			require.Contains(t, output, "COPY")
 
 			output = integrationtest.RunGeneratedUsql(t, "impala:"+dsn, "select * from dest", tmpDir)

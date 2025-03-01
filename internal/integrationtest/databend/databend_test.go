@@ -72,7 +72,7 @@ func TestDatabend(t *testing.T) {
 
 		destExpression := "INSERT INTO dest VALUES (?, ?)"
 		copyCmd := fmt.Sprintf(`\copy csvq:. databend:%s 'select string(1), string(2)' '%s'`, dsn, destExpression)
-		output = integrationtest.RunGeneratedUsql(t, "", copyCmd, tmpDir)
+		output = integrationtest.RunGeneratedUsql(t, "", copyCmd, tmpDir, "csvq")
 		require.Contains(t, output, "COPY")
 		output = integrationtest.RunGeneratedUsql(t, "databend:"+dsn, "select * from dest", tmpDir)
 		require.Contains(t, output, "(1 row)")

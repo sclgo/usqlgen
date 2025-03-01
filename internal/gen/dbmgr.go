@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"regexp"
 	"slices"
 	"strings"
 
@@ -19,6 +20,8 @@ import (
 // For now, we also avoid depending on xo/usql, only on xo/dburl, to keep our dep tree small.
 // This may change in the future.
 // Avoid depending on libraries, not already used in usql.
+
+var SemicolonEndRE = regexp.MustCompile(`;?\s*$`)
 
 func FindNew(current []string, original []string) []string {
 	return slices.DeleteFunc(current, func(s string) bool {

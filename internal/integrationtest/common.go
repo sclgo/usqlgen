@@ -4,17 +4,19 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
-	"github.com/sclgo/usqlgen/internal/gen"
-	"github.com/sclgo/usqlgen/internal/shell"
-	"github.com/sclgo/usqlgen/pkg/sclerr"
-	"github.com/stretchr/testify/require"
-	"github.com/urfave/cli/v2"
 	"io"
 	"os"
 	"os/exec"
 	"strings"
 	"testing"
+
+	"github.com/sclgo/usqlgen/internal/gen"
+	"github.com/sclgo/usqlgen/pkg/sclerr"
+	"github.com/stretchr/testify/require"
+	"golang.org/x/exp/slices"
 )
+
+const NoBaseTag = "no_base"
 
 func IntegrationOnly(t *testing.T) {
 	if strings.ToLower(os.Getenv("SUITE")) != "integration" {
@@ -50,25 +52,20 @@ func RunGeneratedUsql(t *testing.T, dsn string, command string, tmpDir string, t
 }
 
 func RunGeneratedUsqlE(dsn string, command string, tmpDir string, tags ...string) (string, error) {
+	// speed up build, add some tag like "base" to disable
+	if tags == nil {
+		tags = []string{NoBaseTag}
+	}
+
 	cmd := exec.Command("go", "run", "-tags", strings.Join(tags, ","), ".", dsn, "-c", command)
 	cmd.Dir = tmpDir
 	var buf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(&buf, os.Stdout)
 	cmd.Stderr = os.Stderr
+	cmd.Env = slices.DeleteFunc(os.Environ(), func(s string) bool {
+		return strings.HasPrefix(s, "GO")
+	})
 	err := cmd.Run()
 	output := buf.String()
 	return output, err
-}
-
-func CheckBuildRun(t *testing.T, inp gen.Input, dsn string, query string, tags ...string) {
-	cmd := &shell.BuildCommand{
-		CompileCommand: shell.CompileCommand{
-			CommandBase: shell.CommandBase{},
-			Imports:     *cli.NewStringSlice(inp.Imports...),
-			Replaces:    *cli.NewStringSlice(inp.Replaces...),
-		},
-	}
-	err := cmd.Action(nil)
-	require.NoError(t, err)
-	// TODO complete
 }
