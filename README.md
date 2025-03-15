@@ -15,7 +15,7 @@ without needing to fork.
 
 ## When to use
 
-In most cases, using or contributing `usql` directly is best. `usqlgen` is useful when you want to avoid editing `usql` code and:
+In most cases, using `usql` directly is best. `usqlgen` helps when you want to avoid editing `usql` code and:
 
 - you want to use a database driver which is not publicly available or is under active development
 - you want to use alternative driver for a database supported by `usql`. 
