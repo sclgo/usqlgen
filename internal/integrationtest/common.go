@@ -7,13 +7,13 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"slices"
 	"strings"
 	"testing"
 
 	"github.com/sclgo/usqlgen/internal/gen"
 	"github.com/sclgo/usqlgen/pkg/sclerr"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/exp/slices"
 )
 
 const NoBaseTag = "no_base"
