@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"net/url"
 	"reflect"
 	"regexp"
@@ -21,32 +22,52 @@ import (
 // This may change in the future.
 // Avoid depending on libraries, not already used in usql.
 
+// SemicolonEndRE is used in driver.Process in main.go.tpl
 var SemicolonEndRE = regexp.MustCompile(`;?\s*$`)
 
-func FindNew(current []string, original []string) []string {
+type set map[string]bool
+
+func findNew(current []string, original set) []string {
 	return slices.DeleteFunc(current, func(s string) bool {
-		return slices.Contains(original, s)
+		_, ok := original[s]
+		return ok
 	})
+}
+
+// expands expands the set of the driver names to the set of all names and their aliases
+func expand(drivers []string) set {
+	m := make(map[string]bool, len(drivers))
+	for _, drv := range drivers {
+		for _, item := range dburl.Protocols(drv) {
+			m[item] = true
+		}
+	}
+	return m
 }
 
 // RegisterNewDrivers registers in xo/dburl all database/sql.Drivers()
 // that are not present in provided existing list.
 func RegisterNewDrivers(existing []string) []string {
-	newDrivers := FindNew(sql.Drivers(), existing)
+	existingAll := expand(existing)
+	newDrivers := findNew(sql.Drivers(), existingAll)
+	if newDrivers == nil {
+		log.Printf("Did not find new drivers despite new imports. " +
+			"Likely imported driver name clashes with existing drivers or their aliases. " +
+			"Try adding '-- -tags no_xxx' to the usqlgen command-line, where xxx is a DB tag from usql docs.")
+	}
+
 	for _, driver := range newDrivers {
+		// We have validated that the schemes we are unregistering are not from linked drivers.
 		dburl.Unregister(driver)
+		scheme := getScheme(driver, existingAll)
+		dburl.Unregister(scheme.Aliases[0])
 
-		// xo/dburl registers a 2 char alias of all driver names longer than 2 chars
-		if len(driver) > 2 {
-			dburl.Unregister(driver[:2])
-		}
-
-		dburl.Register(GetScheme(driver))
+		dburl.Register(scheme)
 	}
 	return newDrivers
 }
 
-func GetScheme(driver string) dburl.Scheme {
+func getScheme(driver string, existing set) dburl.Scheme {
 	return dburl.Scheme{
 		Driver: driver,
 		Generator: func(u *dburl.URL) (string, string, error) {
@@ -55,7 +76,29 @@ func GetScheme(driver string) dburl.Scheme {
 			return u.Opaque + genQueryOptions(u.Query()), "", nil
 		},
 		Opaque: true,
+		// If we don't generate a unique short (2 char) alias, xo/dburl creates
+		// it from the first 2 chars of the name which might overwrite a built-in one.
+		Aliases: getUniqueShortAlias(driver, existing),
 	}
+}
+
+// getUniqueShortAlias generates a short (2 char) alias which doesn't repeat any alias in the given set
+// The given set is expected to be the result of expand(usql/drivers.Available() -> keys)
+// The result may still overwrite an alias of a schemes which is in dburl.BaseSchemes but this is
+// fine since this scheme is for a driver which is not in usql/drivers.Available().
+func getUniqueShortAlias(driver string, existing set) []string {
+	if len(driver) <= 2 {
+		return nil
+	}
+	for _, a := range driver {
+		for _, b := range driver[1:] + "0123456789" {
+			shortAlias := string(a) + string(b)
+			if _, ok := existing[shortAlias]; !ok {
+				return []string{shortAlias}
+			}
+		}
+	}
+	return nil // should be impossible, because digits are not used in dburl aliases.
 }
 
 // genQueryOptions generates standard query options.
