@@ -36,6 +36,7 @@ func TestMonetdb(t *testing.T) {
 	}
 
 	integrationtest.CheckGenAll(t, inp, "monetdb:"+dsn, "select 1")
+	integrationtest.CheckGenAll(t, inp, "mo:"+dsn, "select 1")
 }
 
 func GetDsn(ctx context.Context, c testcontainers.Container) string {

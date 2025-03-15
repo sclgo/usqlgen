@@ -29,20 +29,9 @@ func TestImpala(t *testing.T) {
 
 	dsn := GetDsn(ctx, t, c)
 
-	t.Run("kprotoss driver", func(t *testing.T) {
-		inp := gen.Input{
-			Imports: []string{"github.com/kprotoss/go-impala"},
-		}
-		t.Run("select", func(t *testing.T) {
-			integrationtest.CheckGenAll(t, inp, "impala:"+dsn, "select 'Hello World'")
-		})
-
-	})
-
 	t.Run("sclgo driver", func(t *testing.T) {
 		inp := gen.Input{
-			Imports:  []string{"github.com/bippio/go-impala"},
-			Replaces: []string{"github.com/bippio/go-impala=github.com/sclgo/go-impala@master"},
+			Imports: []string{"github.com/sclgo/impala-go"},
 		}
 
 		t.Run("select", func(t *testing.T) {
@@ -58,15 +47,6 @@ func TestImpala(t *testing.T) {
 
 			tableDdl := "create table default.dest(col1 string, col2 string) STORED AS PARQUET;"
 
-			//impala.DefaultOptions.LogOut = os.Stdout
-			//db, err := sql.Open("impala", dsn)
-			//require.NoError(t, err)
-			//defer sclerr.CloseQuietly(db)
-			//_, err = db.Exec(tableDdl)
-			//require.NoError(t, err)
-			//_, err = db.Exec("insert into default.dest values ('1', '2')")
-			//require.NoError(t, err)
-
 			output := integrationtest.RunGeneratedUsql(t, "impala:"+dsn, tableDdl, tmpDir)
 			require.Contains(t, output, "CREATE TABLE")
 
@@ -77,12 +57,9 @@ func TestImpala(t *testing.T) {
 
 			output = integrationtest.RunGeneratedUsql(t, "impala:"+dsn, "select * from dest", tmpDir)
 
-			//INSERT does not work on the combination current version of the driver and
-			//the docker environment. Writing to tables backed by local files requires passing the user
-			//which doesn't seem to happen when useLdap = false.
-			//require.Contains(t, output, "(1 row)")
-			require.Contains(t, output, "(0 rows)")
+			require.Contains(t, output, "(1 row)")
 		})
+
 	})
 
 	t.Run("kenshaw driver", func(t *testing.T) {

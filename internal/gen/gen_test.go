@@ -38,8 +38,10 @@ func TestInput_All(t *testing.T) {
 			Imports: []string{"github.com/MonetDB/MonetDB-Go/v2"},
 		}
 		stdoutStr := runGenAll(t, inp)
-		require.Contains(t, stdoutStr, "monetdb")
+		require.Contains(t, stdoutStr, "monetdb [mo]")
 		require.NotContains(t, stdoutStr, "github.com/MonetDB/MonetDB-Go/v2 v2.0.1")
+		// incorrectly re-registered sqlserver, which used to be a side-effect of imports
+		require.NotContains(t, stdoutStr, "mssql [ms]")
 	})
 
 	t.Run("replaces", func(t *testing.T) {
