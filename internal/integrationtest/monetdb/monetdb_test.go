@@ -12,8 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
-
-	_ "github.com/MonetDB/MonetDB-Go/src"
 )
 
 const Username = "monetdb"
@@ -29,7 +27,6 @@ func TestMonetdb(t *testing.T) {
 	})
 
 	dsn := GetDsn(ctx, c)
-	integrationtest.SanityPing(ctx, t, dsn, "monetdb")
 
 	inp := gen.Input{
 		Imports: []string{"github.com/MonetDB/MonetDB-Go/v2"},
