@@ -28,7 +28,12 @@ var dbMgrCode []byte
 const fileMode = 0700
 
 type Input struct {
-	Imports     []string
+
+	// Imports lists packages that will be imported with blank import
+	// in the order given. Duplicates are allowed and won't be removed.
+	// Caller should remove duplicates if needed.
+	Imports []string
+
 	Replaces    []string
 	Gets        []string
 	WorkingDir  string
@@ -85,11 +90,11 @@ func (i Input) AllDownload() (Result, error) {
 		result.DownloadedUsqlVersion = fmt.Sprint(downloadedVersion)
 	}
 
-	// TODO Check if already is 1.23+
-	err = i.runGo("mod", "edit", "-go=1.23")
-	if err != nil {
-		return result, merry.Wrap(err)
-	}
+	// We expect that the DownloadedUsqlVersion is already at go1.23+
+	//err = i.runGo("mod", "edit", "-go=1.23")
+	//if err != nil {
+	//	return result, merry.Wrap(err)
+	//}
 
 	origMainFile := filepath.Join(i.WorkingDir, "main.go")
 	origMainBytes, err := os.ReadFile(origMainFile)
@@ -120,10 +125,6 @@ func (i Input) AllDownload() (Result, error) {
 	err = i.goModReplace(i.Replaces)
 	if err != nil {
 		return result, err
-	}
-
-	if len(i.Replaces) == 0 {
-		err = i.runGo("mod", "tidy")
 	}
 
 	return result, err
@@ -289,7 +290,26 @@ func (i Input) populateDbMgr() error {
 }
 
 func (i Input) doGoGet() error {
-	for _, gs := range i.Gets {
+	return doGoGet(i.Gets, i)
+}
+
+// We believe that we don't need to go get the --imports params,
+// since this is handled by CompileCmd using either -mod=mod for build/install,
+// or "go mod tidy for generate
+//
+//func (i Input) getImports() error {
+//	if i.Gets != nil {
+//		// The modules in get may have already delivered those packages
+//		// We don't want to run 'go get' for them because it will upgrade the explicit version
+//		i.Imports = lo.Filter(i.Imports, func(item string, index int) bool {
+//			return i.runGo("list", "-find", item) != nil // returns exit code 1 if not found
+//		})
+//	}
+//	return doGoGet(i.Imports, i)
+//}
+
+func doGoGet(gets []string, i Input) error {
+	for _, gs := range gets {
 		err := i.runGo("get", gs)
 		if err != nil {
 			return err

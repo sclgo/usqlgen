@@ -28,7 +28,7 @@ func TestCosmos(t *testing.T) {
 	err := inp.All()
 	require.NoError(t, err)
 
-	cmd := exec.Command("go", "run", "-tags", integrationtest.NoBaseTag, ".", "gocosmos:AccountEndpoint=https://localhost;AccountKey=test", "-c", `LIST DATABASES;`)
+	cmd := exec.Command("go", "run", "-mod=mod", "-tags", integrationtest.NoBaseTag, ".", "gocosmos:AccountEndpoint=https://localhost;AccountKey=test", "-c", `LIST DATABASES;`)
 	cmd.Dir = tmpDir
 	var buf bytes.Buffer
 	cmd.Stdout = io.Discard

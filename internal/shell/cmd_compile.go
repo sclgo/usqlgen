@@ -1,7 +1,6 @@
 package shell
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -43,17 +42,27 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 	}
 
 	if compileCmd == "" {
-		return nil
+		return run.GoBin(workingDir, c.goBin, "mod", "tidy")
 	}
 
 	args := []string{compileCmd}
 	args = append(args, compileArgs...)
 	// -ldflags can be repeated so this doesn't interfere with PassthroughArgs
-	ldflags := fmt.Sprintf(`-X github.com/xo/usql/text.CommandVersion=%s-usqlgen`, genResult.DownloadedUsqlVersion)
+	ldflags := `-X github.com/xo/usql/text.CommandVersion=` + makeVersion(genResult.DownloadedUsqlVersion)
 	args = append(args, "-ldflags", ldflags)
+
+	// NB: This might interfere with PassthroughArgs
+	// Required to avoid go mod tidy when adding just imports
+	args = append(args, "-mod=mod")
+
 	args = append(args, c.Globals.PassthroughArgs...)
 	args = append(args, ".")
 	return run.GoBin(workingDir, c.goBin, args...)
+}
+
+func makeVersion(downloadedVersion string) string {
+	// we use _ as separator so it doesn't interfere with the suggested go install logic in usql/main.go
+	return downloadedVersion + "_usqlgen"
 }
 
 func (c *CompileCommand) generate(workingDir string) (gen.Result, error) {

@@ -70,7 +70,23 @@ func TestBuild(t *testing.T) {
 		var buf bytes.Buffer
 		err := cmd.Action(&buf)
 		require.NoError(t, err)
-		require.Contains(t, buf.String(), testVersion+"-usqlgen")
+		require.Contains(t, buf.String(), testVersion+"_usqlgen")
+	})
+
+	t.Run("full build", func(t *testing.T) {
+		fi.SkipLongTest(t)
+
+		cmd := NewCommands(nil).BuildCmd
+		require.NoError(t, cmd.Imports.Set("github.com/sclgo/impala-go"))
+
+		currentWorkDir := fi.NoError(os.Getwd()).Require(t)
+		defer fi.NoErrorF(fi.Bind(os.Chdir, currentWorkDir), t)
+		require.NoError(t, os.Chdir(tmpDir))
+		err := cmd.Action(nil)
+		require.NoError(t, err)
+
+		outputTmpFile := filepath.Join(tmpDir, "usql")
+		checkExecutable(t, outputTmpFile)
 	})
 }
 

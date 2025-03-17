@@ -57,7 +57,7 @@ func RunGeneratedUsqlE(dsn string, command string, tmpDir string, tags ...string
 		tags = []string{NoBaseTag}
 	}
 
-	cmd := exec.Command("go", "run", "-tags", strings.Join(tags, ","), ".", dsn, "-c", command)
+	cmd := exec.Command("go", "run", "-mod=mod", "-tags", strings.Join(tags, ","), ".", dsn, "-c", command)
 	cmd.Dir = tmpDir
 	var buf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(&buf, os.Stdout)
