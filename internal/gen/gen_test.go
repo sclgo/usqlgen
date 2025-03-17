@@ -73,7 +73,7 @@ func runGenAll(t *testing.T, inp gen.Input) string {
 	err := inp.All()
 	require.NoError(t, err)
 
-	cmd := exec.Command("go", "run", ".", "-c", `\drivers`)
+	cmd := exec.Command("go", "run", "-mod=mod", ".", "-c", `\drivers`)
 	cmd.Dir = tmpDir
 	var buf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(&buf, os.Stdout)

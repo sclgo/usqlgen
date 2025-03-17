@@ -44,5 +44,5 @@ func TestVersion(t *testing.T) {
 	cmd.Stderr = os.Stderr
 	require.NoError(t, cmd.Run())
 
-	require.Equal(t, fmt.Sprintf("usql %s-usqlgen", testVersion), strings.TrimSpace(buf.String()))
+	require.Equal(t, fmt.Sprintf("usql %s_usqlgen", testVersion), strings.TrimSpace(buf.String()))
 }
