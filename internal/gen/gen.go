@@ -96,20 +96,11 @@ func (i Input) AllDownload() (Result, error) {
 	//	return result, merry.Wrap(err)
 	//}
 
-	origMainFile := filepath.Join(i.WorkingDir, "main.go")
-	origMainBytes, err := os.ReadFile(origMainFile)
-	if err != nil {
-		return result, merry.Wrap(err)
-	}
-	origMainBytes = bytes.Replace(origMainBytes, []byte("func main()"), []byte("func origMain()"), 1)
-	err = os.WriteFile(origMainFile, origMainBytes, fileMode)
-	if err != nil {
-		return result, merry.Wrap(err)
-	}
-
-	err = i.populateMain()
-	if err != nil {
-		return result, err
+	if i.Imports != nil {
+		err = i.replaceMain()
+		if err != nil {
+			return result, err
+		}
 	}
 
 	err = i.populateDbMgr()
@@ -202,41 +193,6 @@ func (i Input) All() error {
 	return err
 }
 
-// AllFork generates all usql distribution code using the fork strategy
-func (i Input) AllFork() error {
-
-	err := os.MkdirAll(i.WorkingDir, fileMode)
-	if err != nil {
-		return merry.Wrap(err)
-	}
-
-	err = i.runGo("mod", "init", "usql")
-	if err != nil {
-		return err
-	}
-
-	err = i.populateMain()
-	if err != nil {
-		return err
-	}
-
-	err = i.populateDbMgr()
-	if err != nil {
-		return err
-	}
-
-	// There seems to be no way to choose usql version with this strategy.
-	// See also AllDownload.
-	err = i.goModReplace(append(
-		[]string{"github.com/xo/usql=github.com/sclgo/usql@main"},
-		i.Replaces...))
-	if err != nil {
-		return err
-	}
-
-	return err
-}
-
 func (i Input) goModReplace(replaceList []string) error {
 	for _, rs := range replaceList {
 
@@ -291,6 +247,26 @@ func (i Input) populateDbMgr() error {
 
 func (i Input) doGoGet() error {
 	return doGoGet(i.Gets, i)
+}
+
+func (i Input) editOriginalMain() error {
+	origMainFile := filepath.Join(i.WorkingDir, "main.go")
+	origMainBytes, err := os.ReadFile(origMainFile)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+	origMainBytes = bytes.Replace(origMainBytes, []byte("func main()"), []byte("func origMain()"), 1)
+	err = os.WriteFile(origMainFile, origMainBytes, fileMode)
+	return merry.Wrap(err)
+}
+
+func (i Input) replaceMain() error {
+	err := i.editOriginalMain()
+	if err != nil {
+		return err
+	}
+
+	return i.populateMain()
 }
 
 // We believe that we don't need to go get the --imports params,

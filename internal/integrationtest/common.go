@@ -2,8 +2,6 @@ package integrationtest
 
 import (
 	"bytes"
-	"context"
-	"database/sql"
 	"io"
 	"os"
 	"os/exec"
@@ -12,7 +10,6 @@ import (
 	"testing"
 
 	"github.com/sclgo/usqlgen/internal/gen"
-	"github.com/sclgo/usqlgen/pkg/sclerr"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,13 +22,15 @@ func IntegrationOnly(t *testing.T) {
 	}
 }
 
-func SanityPing(ctx context.Context, t *testing.T, dsn string, driver string) {
-	db, err := sql.Open(driver, dsn)
-	require.NoError(t, err)
-	defer sclerr.CloseQuietly(db)
-	err = db.PingContext(ctx)
-	require.NoError(t, err)
-}
+//SanityPing pings a DB identified by driver and dsn directly through database/sql
+//It is avoided in regularly executed tests because it requires an explicit dependency to the DB driver
+//func SanityPing(ctx context.Context, t *testing.T, dsn string, driver string) {
+//	db, err := sql.Open(driver, dsn)
+//	require.NoError(t, err)
+//	defer sclerr.CloseQuietly(db)
+//	err = db.PingContext(ctx)
+//	require.NoError(t, err)
+//}
 
 func CheckGenAll(t *testing.T, inp gen.Input, dsn string, command string, tags ...string) {
 	tmpDir := t.TempDir()

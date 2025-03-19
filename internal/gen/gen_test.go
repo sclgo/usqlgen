@@ -22,13 +22,6 @@ func TestInput_Main(t *testing.T) {
 		require.NoError(t, inp.Main(&buf))
 		require.Contains(t, buf.String(), "hello/hello")
 	})
-
-	t.Run("without imports", func(t *testing.T) {
-		var inp gen.Input
-		buf := bytes.Buffer{}
-		require.NoError(t, inp.Main(&buf))
-		require.NotContains(t, buf.String(), "RegisterNewDrivers")
-	})
 }
 
 func TestInput_All(t *testing.T) {
