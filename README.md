@@ -94,17 +94,18 @@ So to connect to MonetDB with the binary we just built, run:
 Above `monetdb` is repeated in the beginning of the DB URL because it is both the Go driver name,
 and the admin username in the beginning of the DSN.
 
-You can try the same with databases or data engines like 
-[rqlite](https://github.com/rqlite/gorqlite), 
-[influxdb](https://pkg.go.dev/github.com/influxdata/influxdb-iox-client-go/v2/ioxsql),
+You can try the same with databases or data engines like
+[rqlite](https://github.com/rqlite/gorqlite?tab=readme-ov-file#driver-for-databasesql),
 [Dremio or Apache Drill](https://github.com/factset/go-drill), etc.
 
 `usqlgen` also allows you to use alternative drivers of supported databases. Examples include:
 
-- [github.com/microsoft/gocosmos](https://github.com/microsoft/gocosmos) - an official copy/fork of the unofficial driver included in `usql`
+- [github.com/microsoft/gocosmos](https://github.com/microsoft/gocosmos) - an official mirror of the unofficial driver
+  included in `usql`
 - [github.com/sclgo/impala-go](https://github.com/sclgo/impala-go) - modernized variant of the built-in [Apache Impala](https://impala.apache.org/) driver
 - [github.com/mailru/go-clickhouse/v2](https://github.com/mailru/go-clickhouse) - HTTP-only alternative of the built-in Clickhouse driver
-- [github.com/sclgo/duckdb-adbc-go](https://github.com/sclgo/duckdb-adbc-go) - alternative driver for DuckDB that uses [its ADBC C API](https://duckdb.org/docs/clients/adbc)
+- [github.com/sclgo/adbcduck-go](https://github.com/sclgo/adbcduck-go) - alternative driver for DuckDB that
+  uses [its ADBC C API](https://duckdb.org/docs/clients/adbc)
 
 For more options, see `usqlgen --help` or review the examples below.
 
@@ -112,21 +113,41 @@ For more options, see `usqlgen --help` or review the examples below.
 
 Most `usql` [backslash (meta) commands](https://github.com/xo/usql?tab=readme-ov-file#backslash-commands) work 
 with new drivers added with `--import`, including 
-[cross-database `\copy`](https://github.com/xo/usql?tab=readme-ov-file#copying-between-databases). 
-Informational commands and autocomplete won't work though.
+[cross-database `\copy`](https://github.com/xo/usql?tab=readme-ov-file#copying-between-databases).
+Informational commands and autocomplete won't work though - [for now](https://github.com/sclgo/usqlgen/issues/50).
 
 `usql` requires that connection strings are valid URIs or URLs, at least according to the Go `net/url` parsing algorithm.
 If you get an error that parameter in the form `driverName:dsn` can't be parsed as a URL,
 start `usql` without a connection string - in interactive mode or with the `-f` parameter. `usql` will start not connected to a DB.
 Then use the `\connect` command with two arguments driverName and dsn. In the `monetdb` example above, that would be:
-`\connect monetdb monetdb:password@localhost:50000/monetdb`
+`\connect monetdb monetdb:password@localhost:50000/monetdb`.
+
+## CGO usage
+
+`usqlgen build` and `usqlgen install` usually require support for [CGO](https://pkg.go.dev/cmd/cgo) to compile
+the generated `usql` codebase. If you need to avoid depending on CGO:
+
+- don't import drivers that use CGO. The driver documentation should mention such usage.
+- exclude `usql` base drivers that depend on CGO by adding `-- -tags no_sqlite3` to the `usqlgen` command-line
+
+If the system doesn't support CGO you may see errors like this when running `usqlgen build` or `install`:
+
+```bash
+# github.com/xo/usql/drivers/sqlite3
+drivers/sqlite3/sqlite3.go:31:29: undefined: sqlite3.Error
+drivers/sqlite3/sqlite3.go:35:29: undefined: sqlite3.ErrNo
+```
+
+In the future, `usqlgen` will [automatically exclude](https://github.com/sclgo/usqlgen/issues/51)
+default drivers that depend on CGO and weren't explicitly requested.
+`usqlgen` itself does not require `CGO` to compile or install.
 
 ## Examples
 
 ### Installing the customized `usql`
 
 Use `usqlgen install ...` to install the customized `usql` to `GOPATH/bin` which is
-typically on the search path.
+typically on the search path. This runs `go install` internally.
 
 ```shell
 usqlgen install --import "github.com/MonetDB/MonetDB-Go/v2"
