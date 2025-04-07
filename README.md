@@ -102,7 +102,7 @@ You can try the same with databases or data engines like
 
 - [github.com/microsoft/gocosmos](https://github.com/microsoft/gocosmos) - an official mirror of the unofficial driver
   included in `usql`
-- [github.com/sclgo/impala-go](https://github.com/sclgo/impala-go) - modernized variant of the built-in [Apache Impala](https://impala.apache.org/) driver
+- [github.com/yugabyte/pgx](https://github.com/yugabyte/pgx) - Postgres pgx variant by Yugabyte with cluster-aware load balancing
 - [github.com/mailru/go-clickhouse/v2](https://github.com/mailru/go-clickhouse) - HTTP-only alternative of the built-in Clickhouse driver
 - [github.com/sclgo/adbcduck-go](https://github.com/sclgo/adbcduck-go) - alternative driver for DuckDB that
   uses [its ADBC C API](https://duckdb.org/docs/clients/adbc)
@@ -138,9 +138,8 @@ drivers/sqlite3/sqlite3.go:31:29: undefined: sqlite3.Error
 drivers/sqlite3/sqlite3.go:35:29: undefined: sqlite3.ErrNo
 ```
 
-In the future, `usqlgen` will [automatically exclude](https://github.com/sclgo/usqlgen/issues/51)
-default drivers that depend on CGO and weren't explicitly requested.
-`usqlgen` itself does not require `CGO` to compile or install.
+In the future, `usqlgen` will detect if CGO is not available and [automatically exclude](https://github.com/sclgo/usqlgen/issues/51)
+default drivers that need it and weren't explicitly requested. `usqlgen` itself does not require `CGO` to compile or install.
 
 ## Examples
 
@@ -185,56 +184,31 @@ SQL driver fork while keeping the `usql` configuration for the target database.
 Information commands, schema exploration, and autocomplete will continue to work
 if the fork remains compatible enough with the original.
 
-For example, one of the authors of `usql` created a SQL driver 
-[github.com/kenshaw/go-impala](https://github.com/kenshaw/go-impala),
-fork of the abandoned Apache Impala driver currently used in `usql` - 
-[github.com/bippio/go-impala](https://github.com/bippio/go-impala).
+For example, [github.com/dlapko/go-mssqldb](https://github.com/dlapko/go-mssqldb)
+is a fork of [github.com/microsoft/go-mssqldb](https://github.com/microsoft/go-mssqldb)
+with several fixes at the time of writing.
 
-The fork was needed, because the abandoned driver used in `usql` 
-doesn't work in recent Go releases:
+To build `usql` with the fork, run:
 
 ```shell
-go install -tags impala github.com/xo/usql@latest
-# a bunch of error messages
+usqlgen build --replace "github.com/microsoft/go-mssqldb=github.com/dlapko/go-mssqldb@main"
 ```
-
-To use the fork, run:
-
-```shell
-usqlgen build --replace "github.com/bippio/go-impala=github.com/kenshaw/go-impala@master" -- -tags impala
-```
-
-To test the compiled `usql` binary:
-
-```shell
-# Start local Impala
-docker run -d --rm -p 21050:21050 --memory=4096m \
-  apache/kudu:impala-latest impala
-  
-# Connect to local Impala
-# We use a usql DB URL as opposed to a driver:dsn URL because we use a built-in driver config
-./usql impala://localhost:21050 -c "select 'Hello World'" -t -q
-# prints Hello World
-```
-
-We included `-- -tags impala` in the command-line so the original driver code in `usql`
-is included in the build.
 
 Note that this works only with forks that keep the original module name - 
-in this case `github.com/bippio/go-impala` - in their 
-[go.mod](https://github.com/kenshaw/go-impala/blob/master/go.mod).
+in this case `github.com/microsoft/go-mssqldb` - in their 
+[go.mod](https://github.com/dlapko/go-mssqldb/blob/main/go.mod).
 Such forks can only be used as replacements and can't be imported directly. 
 For example, this command doesn't work:
 
 ```shell
-usqlgen build --import "github.com/kenshaw/go-impala"
+usqlgen build --import "github.com/dlapko/go-mssqldb"
 # the error output includes:
-#	module declares its path as: github.com/bippio/go-impala
-#	        but was required as: github.com/kenshaw/go-impala	       
+module declares its path as: github.com/microsoft/go-mssqldb
+        but was required as: github.com/dlapko/go-mssqldb      
 ```
 
 Forks that changed the module name to match their repository location can be imported with `--import`,
-e.g. [github.com/sclgo/impala-go](https://github.com/sclgo/impala-go) .
+e.g. [github.com/yugabyte/pgx](https://github.com/yugabyte/pgx) .
 
 ### Using a specific version of a driver
 
