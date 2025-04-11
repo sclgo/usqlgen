@@ -298,16 +298,6 @@ func (i Input) log(msg string, args ...any) {
 	_, _ = fmt.Fprintf(os.Stderr, msg, args...)
 }
 
-func (i Input) editSqlite3Import() error {
-	origFile := filepath.Join(i.WorkingDir)
-	inp, err := os.Open(origFile)
-	if err != nil {
-		return merry.Wrap(err)
-	}
-	defer sclerr.CloseQuietly(inp)
-	return nil
-}
-
 // We believe that we don't need to go get the --imports params,
 // since this is handled by CompileCmd using either -mod=mod for build/install,
 // or "go mod tidy for generate
