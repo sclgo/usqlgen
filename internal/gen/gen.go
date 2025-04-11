@@ -126,7 +126,7 @@ func (i Input) AllDownload() (Result, error) {
 	if !i.KeepCgo {
 		adjustErr := i.adjustCgoTags()
 		if adjustErr != nil {
-			i.log("Failed to adjust base cgo tags, but this might not be an issue, depending on tags and environment. Cause: %v", err)
+			i.log("Failed to adjust base cgo tags, but this might not be an issue, depending on tags and environment. Cause: %v", adjustErr)
 		}
 	}
 
