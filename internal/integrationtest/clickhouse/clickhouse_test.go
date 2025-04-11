@@ -41,7 +41,7 @@ func TestClickhouse(t *testing.T) {
 		err := inp.All()
 		require.NoError(t, err)
 
-		_, _ = it.RunGeneratedUsqlE(dsn, "create table dest(col1 varchar, col2 varchar) PRIMARY KEY col1;", tmpDir)
+		_, _ = it.RunGeneratedUsqlE(dsn, "create table dest(col1 varchar, col2 varchar) PRIMARY KEY col1;", tmpDir, nil)
 		// ignoring error because usql -c, for some reason, fails if RowsAffected returns error
 		// chhttp returns error from RowsAffected because it doesn't support it
 

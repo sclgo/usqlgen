@@ -72,7 +72,7 @@ func makeApp(passthroughArgs []string, writer, errWriter io.Writer) *cli.App {
 				Subcommands: []*cli.Command{
 					{
 						Name:   "options",
-						Usage:  "list options available for --dboptions parameter. Each option modifies how imported databases are treated.",
+						Usage:  "displays options available for --dboptions parameter. Each option modifies how database drivers are treated.",
 						Args:   false,
 						Action: listOptions,
 					},

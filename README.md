@@ -124,22 +124,24 @@ Then use the `\connect` command with two arguments driverName and dsn. In the `m
 
 ## CGO usage
 
-`usqlgen build` and `usqlgen install` usually require support for [CGO](https://pkg.go.dev/cmd/cgo) to compile
-the generated `usql` codebase. If you need to avoid depending on CGO:
+`usqlgen build` and `usqlgen install` don't need [CGO](https://pkg.go.dev/cmd/cgo) to compile
+the generated `usql` codebase. You only need CGO if you:
 
-- don't import drivers that use CGO. The driver documentation should mention such usage.
-- exclude `usql` base drivers that depend on CGO by adding `-- -tags no_sqlite3` to the `usqlgen` command-line
+- import drivers that use CGO e.g. `--import github.com/sclgo/adbcduck-go`. The driver documentation should mention such
+  usage.
+- add drivers that use CGO with tags e.g. `-- -tags duckdb` .
 
-If the system doesn't support CGO you may see errors like this when running `usqlgen build` or `install`:
+When CGO is not available, `usqlgen` modifies the default "base" driver set,
+replacing `sqlite3` (that requires CGO) with `moderncsqlite` (that doesn't).
+In that case, using the `sqlite3` scheme will run `moderncsqlite` underneath.
+You can opt out of that behavior either:
 
-```bash
-# github.com/xo/usql/drivers/sqlite3
-drivers/sqlite3/sqlite3.go:31:29: undefined: sqlite3.Error
-drivers/sqlite3/sqlite3.go:35:29: undefined: sqlite3.ErrNo
-```
+- by adding `--dboptions keepcgo`
+- by forcing Go to assume CGO is available, by setting environment variable `CGO_ENABLED=1`.
+- by adding tags to explicitly include or exclude relevant drivers.
 
-In the future, `usqlgen` will detect if CGO is not available and [automatically exclude](https://github.com/sclgo/usqlgen/issues/51)
-default drivers that need it and weren't explicitly requested. `usqlgen` itself does not require `CGO` to compile or install.
+All in all, `usqlgen` and the `usql` binaries it produces are very portable - more portable than regular `xo/usql` -
+as long as `usql` is generated and built in the same environment, it is expected to run in.
 
 ## Examples
 
@@ -225,6 +227,15 @@ If the adjustments made by `go get` are not wanted, you may add a replace direct
 
 ```shell
 usqlgen build --replace "github.com/go-sql-driver/mysql=github.com/go-sql-driver/mysql@v1.7.1"
+```
+
+### "Off-label" usage
+
+`usqlgen` may be useful even without changing drivers. For example, `usqlgen` provides the easiest way to
+get a `usql` binary without installing it with a package manager or cloning its Git repository:
+
+```bash
+go run github.com/sclgo/usqlgen@latest build 
 ```
 
 ## Support
