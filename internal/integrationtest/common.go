@@ -45,12 +45,12 @@ func CheckGenAll(t *testing.T, inp gen.Input, dsn string, command string, tags .
 
 func RunGeneratedUsql(t *testing.T, dsn string, command string, tmpDir string, tags ...string) string {
 	t.Logf("Running cmd %s with dsn %s", command, dsn)
-	output, err := RunGeneratedUsqlE(dsn, command, tmpDir, tags...)
+	output, err := RunGeneratedUsqlE(dsn, command, tmpDir, nil, tags...)
 	require.NoError(t, err)
 	return output
 }
 
-func RunGeneratedUsqlE(dsn string, command string, tmpDir string, tags ...string) (string, error) {
+func RunGeneratedUsqlE(dsn string, command string, tmpDir string, addEnv []string, tags ...string) (string, error) {
 	// speed up build, add some tag like "base" to disable
 	if tags == nil {
 		tags = []string{NoBaseTag}
@@ -64,6 +64,7 @@ func RunGeneratedUsqlE(dsn string, command string, tmpDir string, tags ...string
 	cmd.Env = slices.DeleteFunc(os.Environ(), func(s string) bool {
 		return strings.HasPrefix(s, "GO")
 	})
+	cmd.Env = append(cmd.Env, addEnv...)
 	err := cmd.Run()
 	output := buf.String()
 	return output, err

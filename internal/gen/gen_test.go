@@ -30,7 +30,7 @@ func TestInput_All(t *testing.T) {
 		inp := gen.Input{
 			Imports: []string{"github.com/MonetDB/MonetDB-Go/v2"},
 		}
-		stdoutStr := runGenAll(t, inp)
+		stdoutStr := runGenAll(t, inp, nil)
 		require.Contains(t, stdoutStr, "monetdb [mo]")
 		require.NotContains(t, stdoutStr, "github.com/MonetDB/MonetDB-Go/v2 v2.0.1")
 		// incorrectly re-registered sqlserver, which used to be a side-effect of imports
@@ -42,7 +42,7 @@ func TestInput_All(t *testing.T) {
 			Imports:  []string{"github.com/MonetDB/MonetDB-Go/v2"},
 			Replaces: []string{"github.com/MonetDB/MonetDB-Go/v2=github.com/sclgo/MonetDB-Go/v2@fbbd00a"},
 		}
-		stdoutStr := runGenAll(t, inp)
+		stdoutStr := runGenAll(t, inp, nil)
 
 		require.Contains(t, stdoutStr, "monetdbscl")
 	})
@@ -52,13 +52,14 @@ func TestInput_All(t *testing.T) {
 			Imports: []string{"github.com/MonetDB/MonetDB-Go/v2"},
 			Gets:    []string{"github.com/MonetDB/MonetDB-Go/v2@v2.0.1"},
 		}
-		stdoutStr := runGenAll(t, inp)
+		stdoutStr := runGenAll(t, inp, nil)
 
 		require.Contains(t, stdoutStr, "github.com/MonetDB/MonetDB-Go/v2 v2.0.1")
 	})
+
 }
 
-func runGenAll(t *testing.T, inp gen.Input) string {
+func runGenAll(t *testing.T, inp gen.Input, env []string) string {
 	tmpDir := t.TempDir()
 	defer fi.NoErrorF(fi.Bind(os.RemoveAll, tmpDir), t)
 	inp.WorkingDir = tmpDir
@@ -66,7 +67,13 @@ func runGenAll(t *testing.T, inp gen.Input) string {
 	err := inp.All()
 	require.NoError(t, err)
 
-	cmd := exec.Command("go", "run", "-mod=mod", ".", "-c", `\drivers`)
+	env = append(os.Environ(), env...)
+
+	// tests that do require "base" driver set to be active belong in ./integrationtest, possibly
+	// ./integrationtest/build_test.go
+	cmd := exec.Command("go", "run", "-tags", "no_base", "-mod=mod", ".", "-c", `\drivers`)
+
+	cmd.Env = env
 	cmd.Dir = tmpDir
 	var buf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(&buf, os.Stdout)
@@ -75,6 +82,7 @@ func runGenAll(t *testing.T, inp gen.Input) string {
 	require.NoError(t, err, buf.String())
 
 	cmd = exec.Command("go", "list", "-m", "all")
+	cmd.Env = env
 	cmd.Dir = tmpDir
 	cmd.Stdout = io.MultiWriter(&buf, os.Stdout)
 	cmd.Stderr = os.Stderr

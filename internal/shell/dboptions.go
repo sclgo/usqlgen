@@ -27,6 +27,13 @@ don't need or want trailing semicolons`,
 				input.IncludeSemicolon = true
 			},
 		},
+		{
+			name: "keepcgo",
+			desc: `Don't replace drivers that are believed to require CGO if CGO is not available.`,
+			apply: func(input *gen.Input) {
+				input.KeepCgo = true
+			},
+		},
 	}
 	optionNames = lo.SliceToMap(allOptions, func(o *dboption) (string, *dboption) {
 		return o.name, o
