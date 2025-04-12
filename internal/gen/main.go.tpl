@@ -7,6 +7,8 @@ import (
 	"github.com/xo/usql/drivers"
 	"github.com/xo/usql/env"
 	"github.com/xo/dburl"
+
+	_ "github.com/xo/usql/internal"
 )
 
 {{range $val := .Imports}}

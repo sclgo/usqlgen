@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/sclgo/usqlgen/internal/gen"
@@ -95,8 +96,10 @@ func checkExecutable(t *testing.T, path string) {
 	require.NoError(t, err)
 	result, err := exec.Command("file", path).Output()
 	require.NoError(t, err)
-	require.Contains(t, string(result), "LSB executable")
-	require.Contains(t, string(result), "ELF")
+	if runtime.GOOS == "linux" {
+		require.Contains(t, string(result), "LSB executable")
+		require.Contains(t, string(result), "ELF")
+	}
 }
 
 func minimalCompileCommand() CompileCommand {

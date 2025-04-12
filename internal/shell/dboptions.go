@@ -20,11 +20,19 @@ var (
 	allOptions = []*dboption{
 		{
 			name: "includesemicolon",
-			desc: `Include the trailing semicolon the usql uses to identify the end of a statement.
-usql normally includes them, but usqlgen doesn't by default because most Go drivers
-don't need or want trailing semicolons`,
+			desc: `Include the trailing semicolon that usql uses to identify the end of a statement,
+in the SQL string sent to the driver. usql normally includes them, but usqlgen doesn't by
+default because most Go drivers don't need or want trailing semicolons.`,
 			apply: func(input *gen.Input) {
 				input.IncludeSemicolon = true
+			},
+		},
+		{
+			name: "keepcgo",
+			desc: `Don't replace drivers that require CGO if CGO is not available. Compilation will likely fail.
+Useful if generation happens in one environment but compilation in another. See docs for details.`,
+			apply: func(input *gen.Input) {
+				input.KeepCgo = true
 			},
 		},
 	}
@@ -58,8 +66,13 @@ func applyOptionsFromNames(names []string, genInput *gen.Input) error {
 }
 
 func listOptions(c *cli.Context) error {
+	_, err := fmt.Fprint(c.App.Writer, "Options available for --dboptions parameter:\n\n")
+	if err != nil {
+		return err
+	}
+
 	for _, opt := range allOptions {
-		err := writeOpt(opt, c.App.Writer)
+		err = writeOpt(opt, c.App.Writer)
 		if err != nil {
 			return err
 		}
@@ -68,10 +81,10 @@ func listOptions(c *cli.Context) error {
 }
 
 func writeOpt(opt *dboption, writer io.Writer) error {
-	_, err := fmt.Fprint(writer, opt.name, "\n", "\n")
+	_, err := fmt.Fprint(writer, "- ", opt.name, "\n", "\n")
 	if err != nil {
 		return err
 	}
-	_, err = fmt.Fprintln(writer, opt.desc)
+	_, err = fmt.Fprint(writer, opt.desc, "\n", "\n")
 	return err
 }
