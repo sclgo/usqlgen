@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/murfffi/gorich/fi"
 	"github.com/sclgo/usqlgen/internal/shell"
-	"github.com/sclgo/usqlgen/pkg/fi"
 	"github.com/stretchr/testify/require"
 )
 

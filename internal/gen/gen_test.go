@@ -7,9 +7,9 @@ import (
 	"os/exec"
 	"testing"
 
+	"github.com/murfffi/gorich/fi"
 	"github.com/samber/lo"
 	"github.com/sclgo/usqlgen/internal/gen"
-	"github.com/sclgo/usqlgen/pkg/fi"
 	"github.com/stretchr/testify/require"
 )
 

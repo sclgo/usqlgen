@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/ansel1/merry/v2"
-	"github.com/sclgo/usqlgen/pkg/sclerr"
+	"github.com/murfffi/gorich/sclerr"
 	"github.com/urfave/cli/v2"
 )
 

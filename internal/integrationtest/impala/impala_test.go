@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/murfffi/gorich/fi"
 	"github.com/sclgo/usqlgen/internal/gen"
 	"github.com/sclgo/usqlgen/internal/integrationtest"
-	"github.com/sclgo/usqlgen/pkg/fi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"

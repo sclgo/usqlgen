@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/ansel1/merry/v2"
-	"github.com/sclgo/usqlgen/pkg/sclerr"
+	"github.com/murfffi/gorich/sclerr"
 )
 
 // This code is based on https://github.com/xyproto/unzip/blob/v1.0.0/unzip.go
