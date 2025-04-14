@@ -62,7 +62,7 @@ func TestBuild(t *testing.T) {
 			output:         "-",
 		}
 		testVersion := "foobar"
-		cmd.CompileCommand.generator = func(input gen.Input) (gen.Result, error) {
+		cmd.generator = func(input gen.Input) (gen.Result, error) {
 			res, err := minimalGoGenerator(input)
 			res.DownloadedUsqlVersion = testVersion
 			return res, err

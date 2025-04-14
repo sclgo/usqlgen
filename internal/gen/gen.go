@@ -19,9 +19,6 @@ import (
 	"modernc.org/fileutil"
 )
 
-//go:embed main.go.tpl
-var mainTpl string
-
 //go:embed dbmgr.go
 var dbMgrCode []byte
 

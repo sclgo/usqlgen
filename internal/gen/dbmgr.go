@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
 	"log"
 	"net/url"
 	"reflect"
@@ -154,8 +155,7 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 			if err != nil {
 				return 0, fmt.Errorf("failed to execute query to determine target table columns: %w", err)
 			}
-			// Can't use sclerr since dbmgr is standalone.
-			defer colRows.Close()
+			defer closeQuietly(colRows)
 			columns, err := colRows.Columns()
 			if err != nil {
 				return 0, fmt.Errorf("failed to fetch target table columns: %w", err)
@@ -176,7 +176,7 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 	if err != nil {
 		return 0, fmt.Errorf("failed to prepare insert query: %w", err)
 	}
-	defer stmt.Close()
+	defer closeQuietly(stmt)
 	columnTypes, err := rows.ColumnTypes()
 	if err != nil {
 		return 0, fmt.Errorf("failed to fetch source column types: %w", err)
@@ -220,7 +220,7 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 		if err != nil {
 			return 0, fmt.Errorf("failed to prepare insert query: %w", err)
 		}
-		defer finStmt.Close()
+		defer closeQuietly(finStmt)
 		rn, err := writeActuals(ctx, finStmt, actuals, &rowsAffectedSupported)
 		if err != nil {
 			return n, err
@@ -236,6 +236,11 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 		return n, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 	return n, rows.Err()
+}
+
+func closeQuietly(c io.Closer) {
+	// Can't use sclerr since dbmgr is standalone.
+	_ = c.Close()
 }
 
 func writeActuals(ctx context.Context, stmt *sql.Stmt, actuals []interface{}, rowsAffectedSupported *bool) (int64, error) {

@@ -1,3 +1,9 @@
+package gen
+
+// mainTpl contains the template as a constant as opposed to using go:embed with a separate
+// file because this way staticcheck (and by extension golangci-lint) can pick up errors
+// with SA1001
+const mainTpl = `
 package main
 
 import (
@@ -33,3 +39,4 @@ func main() {
 	env.Set("PROMPT1", "%S%N%m%R%# ")
 	origMain()
 }
+`

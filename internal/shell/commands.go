@@ -14,7 +14,7 @@ type InstallCommand struct {
 }
 
 func (c *InstallCommand) Action(*cli.Context) error {
-	return c.CompileCommand.compile("install")
+	return c.compile("install")
 }
 
 type GenerateCommand struct {

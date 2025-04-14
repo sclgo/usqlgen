@@ -57,7 +57,7 @@ func (c *BuildCommand) Action(stdout io.Writer) error {
 		return merry.Wrap(err)
 	}
 
-	err = c.CompileCommand.compile("build", "-o", destination)
+	err = c.compile("build", "-o", destination)
 	if err != nil {
 		return err
 	}
