@@ -51,7 +51,7 @@ go run github.com/sclgo/usqlgen@latest
 If you don't have Go 1.21+, you can run `usqlgen` with Docker:
 
 ```shell
-docker run --rm golang:1.23 \
+docker run --rm golang \
   go run github.com/sclgo/usqlgen@latest build ...add parameters here... -o - > ./usql
 
 chmod +x ./usql
