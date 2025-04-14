@@ -13,9 +13,9 @@ import (
 	"text/template"
 
 	"github.com/ansel1/merry/v2"
+	"github.com/murfffi/gorich/lang"
+	"github.com/murfffi/gorich/sclerr"
 	"github.com/sclgo/usqlgen/internal/run"
-	"github.com/sclgo/usqlgen/pkg/lang"
-	"github.com/sclgo/usqlgen/pkg/sclerr"
 	"modernc.org/fileutil"
 )
 

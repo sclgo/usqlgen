@@ -1,10 +1,11 @@
 module github.com/sclgo/usqlgen
 
-go 1.23.0
+go 1.23.8
 
 require (
 	github.com/ansel1/merry/v2 v2.2.1
 	github.com/mithrandie/csvq-driver v1.7.0
+	github.com/murfffi/gorich v0.1.0
 	github.com/samber/lo v1.49.1
 	github.com/stretchr/testify v1.10.0
 	github.com/testcontainers/testcontainers-go v0.35.0

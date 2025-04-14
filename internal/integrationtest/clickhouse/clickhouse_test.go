@@ -11,11 +11,11 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/murfffi/gorich/fi"
+	"github.com/murfffi/gorich/sclerr"
 	"github.com/samber/lo"
 	"github.com/sclgo/usqlgen/internal/gen"
 	it "github.com/sclgo/usqlgen/internal/integrationtest"
-	"github.com/sclgo/usqlgen/pkg/fi"
-	"github.com/sclgo/usqlgen/pkg/sclerr"
 	"github.com/stretchr/testify/require"
 )
 

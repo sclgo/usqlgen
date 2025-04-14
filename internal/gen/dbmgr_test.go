@@ -5,11 +5,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/sclgo/usqlgen/internal/gen"
-	"github.com/sclgo/usqlgen/pkg/sclerr"
-	"github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
+
+	"github.com/murfffi/gorich/sclerr"
+	"github.com/sclgo/usqlgen/internal/gen"
+	"github.com/stretchr/testify/require"
 
 	// drivers
 	_ "github.com/mithrandie/csvq-driver"
