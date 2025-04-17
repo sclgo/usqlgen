@@ -16,7 +16,8 @@ func TestCompile(t *testing.T) {
 				require.DirExists(t, input.WorkingDir)
 				return gen.Result{}, nil
 			},
-			goBin: "echo",
+			goBin:  "echo",
+			Static: true,
 		}
 
 		err := cmd.compile("build")

@@ -1,6 +1,6 @@
 # usqlgen
 
-`usqlgen` creates custom distributions of [github.com/xo/usql](https://github.com/xo/usql) - 
+`usqlgen` creates custom distributions of [github.com/xo/usql](https://github.com/xo/usql) —
 a universal single-binary SQL CLI, built by the [github.com/xo](https://github.com/xo) team, and 
 inspired by [psql](https://www.postgresql.org/docs/current/app-psql.html).
 
@@ -10,8 +10,13 @@ Learn more about it from its [README](https://github.com/xo/usql#readme).
 `usqlgen` builds on usql's extensibility to allow including arbitrary drivers and other customizations,
 without needing to fork.
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/sclgo/usqlgen.svg)](https://pkg.go.dev/github.com/sclgo/usqlgen)
 ![Tests](https://github.com/sclgo/usqlgen/actions/workflows/go.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sclgo/usqlgen)](https://goreportcard.com/report/github.com/sclgo/usqlgen)
+
+> [!IMPORTANT]
+> The README on the `main` branch may refer to features that are not in the latest tagged version.
+> The [Go reference](https://pkg.go.dev/github.com/sclgo/usqlgen) contains the latest tagged version of the README.
 
 ## When to use
 
@@ -52,21 +57,19 @@ If you don't have Go 1.21+, you can run `usqlgen` with Docker:
 
 ```shell
 docker run --rm golang \
-  go run github.com/sclgo/usqlgen@latest build ...add parameters here... -o - > ./usql
+  go run github.com/sclgo/usqlgen@latest build --static ...add parameters here... -o - > ./usql
 
 chmod +x ./usql
 ```
 
-Ensure that the Docker image matches the OS you are using - Windows container for Windows, Alpine for Alpine Linux, etc.
-The default golang image works for Debian-based Linux distributions like Ubuntu.
-
 ## Quickstart
 
 To install `usql` with support for an additional driver, first review your driver documentation
-to find the Go driver name, DSN ([Data Source Name](https://pkg.go.dev/database/sql#Open)) format and package that needs to be imported to install the
-driver. Let's take for example, [MonetDB](https://github.com/MonetDB/MonetDB-Go#readme),
-which is not in `usql` yet. The docs state that the package that needs to be imported is
-`github.com/MonetDB/MonetDB-Go/v2`. We use this command to build `usql`:
+to find the Go driver name, DSN ([Data Source Name](https://pkg.go.dev/database/sql#Open)) format,
+and package that needs to be imported.
+Let's take for example, [MonetDB](https://github.com/MonetDB/MonetDB-Go#readme), which is not in `usql` yet. The docs
+state that the package
+that needs to be imported is `github.com/MonetDB/MonetDB-Go/v2`. We use this command to build `usql`:
 
 ```shell
 usqlgen build --import "github.com/MonetDB/MonetDB-Go/v2"
@@ -98,14 +101,15 @@ You can try the same with databases or data engines like
 [rqlite](https://github.com/rqlite/gorqlite?tab=readme-ov-file#driver-for-databasesql),
 [Dremio or Apache Drill](https://github.com/factset/go-drill), etc.
 
-`usqlgen` also allows you to use alternative drivers of supported databases. Examples include:
+`usqlgen` also allows you to import alternative drivers of supported databases. Examples include:
 
-- [github.com/microsoft/gocosmos](https://github.com/microsoft/gocosmos) - an official mirror of the unofficial driver
-  included in `usql`
-- [github.com/yugabyte/pgx](https://github.com/yugabyte/pgx) - Postgres pgx variant by Yugabyte with cluster-aware load balancing
+- [github.com/microsoft/gocosmos](https://github.com/microsoft/gocosmos) - an official(-ish) mirror of the unofficial
+  driver included in `usql`
+- [github.com/yugabyte/pgx/stdlib](https://github.com/yugabyte/pgx) - Standalone fork of the Postgres pgx driver with
+  cluster-aware load balancing by [Yugabyte](https://www.yugabyte.com/)
 - [github.com/mailru/go-clickhouse/v2](https://github.com/mailru/go-clickhouse) - HTTP-only alternative of the built-in Clickhouse driver
-- [github.com/sclgo/adbcduck-go](https://github.com/sclgo/adbcduck-go) - alternative driver for DuckDB that
-  uses [its ADBC C API](https://duckdb.org/docs/clients/adbc)
+- [github.com/sclgo/adbcduck-go](https://github.com/sclgo/adbcduck-go) - alternative driver for DuckDB on top of
+  [its ADBC API](https://duckdb.org/docs/clients/adbc)
 
 For more options, see `usqlgen --help` or review the examples below.
 
@@ -137,11 +141,14 @@ In that case, using the `sqlite3` scheme will run `moderncsqlite` underneath.
 You can opt out of that behavior either:
 
 - by adding `--dboptions keepcgo`
-- by forcing Go to assume CGO is available, by setting environment variable `CGO_ENABLED=1`.
-- by adding tags to explicitly include or exclude relevant drivers.
+- by forcing Go to enable CGO with environment variable `CGO_ENABLED=1`.
+- by adding tags to explicitly include or exclude relevant drivers e.g. `-- -tags no_sqlite3`
 
-All in all, `usqlgen` and the `usql` binaries it produces are very portable - more portable than regular `xo/usql` -
-as long as `usql` is generated and built in the same environment, it is expected to run in.
+CGO is also affected by the `--static` flag for `usqlgen build`
+or `usqlgen install` which disables `CGO` and enables static linking.
+
+All in all, `usqlgen` and the `usql` binaries it produces are very portable, even more portable than regular `xo/usql`,
+especially with `--static` flag.
 
 ## Examples
 
@@ -177,7 +184,7 @@ by `usql` and the documentation of `go build` and `go install` for other options
 
 Go environment variables like `GOPRIVATE` or `CGO_ENABLED` affect the compilation
 as usual. For example, `GOPRIVATE` allows you to compile `usql` with drivers which
-are not publicly available.
+are not publicly available; `GOOS` and `GOARCH` allow you to cross-compile, and so on.
 
 ### Using a driver fork
 
@@ -210,7 +217,7 @@ module declares its path as: github.com/microsoft/go-mssqldb
 ```
 
 Forks that changed the module name to match their repository location can be imported with `--import`,
-e.g. [github.com/yugabyte/pgx](https://github.com/yugabyte/pgx) .
+e.g. [github.com/yugabyte/pgx/stdlib](https://github.com/yugabyte/pgx).
 
 ### Using a specific version of a driver
 
@@ -223,7 +230,7 @@ The preferred approach is adding `--get` parameter to execute `go get` while bui
 usqlgen build --get "github.com/go-sql-driver/mysql@v1.7.1"
 ```
 
-If the adjustments made by `go get` are not wanted, you may add a replace directive instead:
+If the adjustments made by `go get` are not wanted, you may add a `replace` directive instead:
 
 ```shell
 usqlgen build --replace "github.com/go-sql-driver/mysql=github.com/go-sql-driver/mysql@v1.7.1"
@@ -240,6 +247,7 @@ go run github.com/sclgo/usqlgen@latest build
 
 ## Support
 
-If you encounter problems, please review [open issues](https://github.com/sclgo/usqlgen/issues) and create one if nessesary.
+If you encounter problems, please review [open issues](https://github.com/sclgo/usqlgen/issues) and create one if
+necessary.
 Note that [usql](https://github.com/xo/usql) authors are aware of this project but support
 only [their regular releases](https://github.com/xo/usql?tab=readme-ov-file#installing).

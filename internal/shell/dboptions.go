@@ -10,6 +10,11 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// dboption is a boolean flag that controls some aspect of usql code generation
+//
+// dboptions are designed so "false" or lack of the option is the default
+// Options that don't control generation, only compilation, don't belong here; they
+// are implemented as boolean flags of the Compile command e.g., Static
 type dboption struct {
 	name  string
 	desc  string
