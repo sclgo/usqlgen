@@ -15,12 +15,16 @@ type CompileCommand struct {
 	generator func(gen.Input) (gen.Result, error)
 	goBin     string
 
+	// Options that control generation
 	Imports     cli.StringSlice
 	Replaces    cli.StringSlice
 	Gets        cli.StringSlice
 	USQLModule  string
 	USQLVersion string
 	DbOptions   cli.StringSlice
+
+	// Options that control compilation only
+	Static bool
 }
 
 func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error {
@@ -42,13 +46,20 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 	}
 
 	if compileCmd == "" {
-		return run.GoBin(workingDir, c.goBin, "mod", "tidy")
+		return run.GoBin(workingDir, nil, c.goBin, "mod", "tidy")
 	}
 
+	var addEnv []string
 	args := []string{compileCmd}
 	args = append(args, compileArgs...)
 	// -ldflags can be repeated so this doesn't interfere with PassthroughArgs
 	ldflags := `-X github.com/xo/usql/text.CommandVersion=` + makeVersion(genResult.DownloadedUsqlVersion)
+	if c.Static {
+		ldflags += ` -extldflags "-static"`
+		args = append(args, "-a")
+		addEnv = append(addEnv, "CGO_ENABLED=0")
+	}
+
 	args = append(args, "-ldflags", ldflags)
 
 	// NB: This might interfere with PassthroughArgs
@@ -57,7 +68,7 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 
 	args = append(args, c.Globals.PassthroughArgs...)
 	args = append(args, ".")
-	return run.GoBin(workingDir, c.goBin, args...)
+	return run.GoBin(workingDir, addEnv, c.goBin, args...)
 }
 
 func makeVersion(downloadedVersion string) string {
@@ -117,6 +128,11 @@ func (c *CompileCommand) MakeFlags() []cli.Flag {
 			Name:        "db-option",
 			Usage:       `option that modifies configuration for newly imported drivers; use "usqlgen list options" to see what options are available`,
 			Destination: &c.DbOptions,
+		},
+		&cli.BoolFlag{
+			Name:        "static",
+			Usage:       `creates a static usql binary; implies env. var CGO_ENABLED=0`,
+			Destination: &c.Static,
 		},
 	}, c.CommandBase.MakeFlags()...)
 }
