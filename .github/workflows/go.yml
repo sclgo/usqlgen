@@ -26,6 +26,8 @@ jobs:
       run: go build -v ./...
     - name: Test
       run: make test
+    - name: checks
+      run: make check_vuln check_tidy
     - name: Integration # requires Docker and thus ubuntu runner
       run: make itest
 

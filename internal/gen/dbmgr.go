@@ -53,8 +53,8 @@ func RegisterNewDrivers(existing []string) []string {
 	newDrivers := findNew(sql.Drivers(), existingAll)
 	if newDrivers == nil {
 		log.Printf("Did not find new drivers despite new imports. " +
-			"Likely imported driver name clashes with existing drivers or their aliases. " +
-			"Try adding '-- -tags no_xxx' to the usqlgen command-line, where xxx is a DB tag from usql docs.")
+			"The import path may be incomplete or the imported driver name clashes with existing drivers or their aliases. " +
+			"If a clash is suspected, try adding '-- -tags no_xxx' to the usqlgen command-line, where xxx is a DB tag from usql docs.")
 	}
 
 	for _, driver := range newDrivers {
@@ -138,9 +138,9 @@ func BuildSimpleCopy(placeholder func(n int) string) func(ctx context.Context, d
 }
 
 // SimpleCopyWithInsert implements usql \copy
-// It is similar to usql defaults implementation, but it tries to adjust to some runtime errors
-// by trying alternative database features. usql never does that because the usql copy implementation
-// is always adapted to the specific database.
+// It is similar to the usql default implementation, but it tries to handle runtime errors
+// by trying fallback options (e.g. no transaction if BeginTx fails).
+// usql never does that because its copy implementation is always adapted to the specific database.
 func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table string, batchSize int, placeholder func(n int) string) (int64, error) {
 	columns, err := rows.Columns()
 	if err != nil {
@@ -239,7 +239,7 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 }
 
 func closeQuietly(c io.Closer) {
-	// Can't use sclerr since dbmgr is standalone.
+	// Avoid gorich/helperr dependency
 	_ = c.Close()
 }
 
