@@ -24,8 +24,10 @@ itest: integration-test
 lint:
 	golangci-lint run -v
 
+.PHONY: checks
 checks: check_tidy check_vuln check_modern
 
+.PHONY: check_tidy
 check_tidy:
 	go mod tidy
 	# Verify that `go mod tidy` didn't introduce any changes. Run go mod tidy before pushing.
