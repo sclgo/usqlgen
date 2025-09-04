@@ -181,11 +181,11 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 	if err != nil {
 		return 0, fmt.Errorf("failed to fetch source column types: %w", err)
 	}
-	values := make([]interface{}, clen)
+	values := make([]any, clen)
 	valueRefs := make([]reflect.Value, clen)
-	actuals := make([]interface{}, 0, clen*batchSize)
+	actuals := make([]any, 0, clen*batchSize)
 
-	for i := 0; i < len(columnTypes); i++ {
+	for i := range columnTypes {
 		valueRefs[i] = reflect.New(columnTypes[i].ScanType())
 		values[i] = valueRefs[i].Interface()
 	}
@@ -243,7 +243,7 @@ func closeQuietly(c io.Closer) {
 	_ = c.Close()
 }
 
-func writeActuals(ctx context.Context, stmt *sql.Stmt, actuals []interface{}, rowsAffectedSupported *bool) (int64, error) {
+func writeActuals(ctx context.Context, stmt *sql.Stmt, actuals []any, rowsAffectedSupported *bool) (int64, error) {
 	res, err := stmt.ExecContext(ctx, actuals...)
 	if err != nil {
 		return 0, fmt.Errorf("failed to exec insert: %w", err)
@@ -266,8 +266,8 @@ func writeActuals(ctx context.Context, stmt *sql.Stmt, actuals []interface{}, ro
 func makeQuery(clen int, rows int, tableSpec string, placeholder func(n int) string) string {
 	query := "INSERT INTO " + tableSpec + " VALUES "
 	placeholders := make([]string, clen)
-	for i := 0; i < rows; i++ {
-		for j := 0; j < clen; j++ {
+	for i := range rows {
+		for j := range clen {
 			placeholders[j] = placeholder(i*clen + j + 1)
 		}
 		query += "(" + strings.Join(placeholders, ", ") + ")"
