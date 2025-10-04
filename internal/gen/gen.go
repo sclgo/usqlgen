@@ -296,7 +296,7 @@ func (i Input) adjustCgoTags() error {
 		return err
 	}
 	moderncsqliteHookPath := filepath.Join("internal", "moderncsqlite.go")
-	// we must include moderncsqlite *only* if sqlite3 was excluded because of !go
+	// we must include moderncsqlite *only* if sqlite3 was excluded because of !cgo
 	return i.replaceInUsqlFile(moderncsqliteHookPath, "most", "most || (!cgo && !no_base && !no_sqlite3)")
 
 	// usql already contains code that assigns sqlite3 aliases to moderncsqlite,

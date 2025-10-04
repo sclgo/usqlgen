@@ -62,7 +62,7 @@ func TestSqlite_NoCgo(t *testing.T) {
 	})
 
 	t.Run("keepcgo", func(t *testing.T) {
-		// Check that
+		// Check that build fails if keepcgo is active but CGO is not available
 		inp := gen.Input{
 			KeepCgo: true,
 		}
