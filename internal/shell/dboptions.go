@@ -26,18 +26,27 @@ var (
 		{
 			name: "includesemicolon",
 			desc: `Include the trailing semicolon that usql uses to identify the end of a statement,
-in the SQL string sent to the driver. usql normally includes them, but usqlgen doesn't by
-default because most Go drivers don't need or want trailing semicolons.`,
+in the SQL string sent to the newly imported driver(s). usql normally includes them, but usqlgen doesn't by
+default because most Go DB drivers don't need or want trailing semicolons.`,
 			apply: func(input *gen.Input) {
 				input.IncludeSemicolon = true
 			},
 		},
 		{
 			name: "keepcgo",
-			desc: `Don't replace drivers that require CGO if CGO is not available. Compilation will likely fail.
+			desc: `Don't replace drivers that require CGO if CGO is not available.
 Useful if generation happens in one environment but compilation in another. See docs for details.`,
 			apply: func(input *gen.Input) {
 				input.KeepCgo = true
+			},
+		},
+		{
+			name: "pprofweb",
+			desc: `Include a pprof web server, as described in https://pkg.go.dev/net/http/pprof . 
+Address is controlled by the USQL_PPROF_ADDRESS env var, defaulting to localhost:6060 as in the docs.
+Useful if usql is slow or hangs.`,
+			apply: func(input *gen.Input) {
+				input.MainOpts.PprofWeb = true
 			},
 		},
 	}

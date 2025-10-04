@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
-	"log"
+	"net/http"
 	"net/url"
+	"os"
 	"reflect"
 	"regexp"
 	"slices"
@@ -23,7 +24,8 @@ import (
 // This may change in the future.
 // Avoid depending on libraries, not already used in usql.
 
-// SemicolonEndRE is used in driver.Process in main.go.tpl
+// All exported functions may be used in main.go.tpl.go even if they appear unused otherwise.
+
 var SemicolonEndRE = regexp.MustCompile(`;?\s*$`)
 
 type set map[string]bool
@@ -51,11 +53,6 @@ func expand(drivers []string) set {
 func RegisterNewDrivers(existing []string) []string {
 	existingAll := expand(existing)
 	newDrivers := findNew(sql.Drivers(), existingAll)
-	if newDrivers == nil {
-		log.Printf("Did not find new drivers despite new imports. " +
-			"Likely imported driver name clashes with existing drivers or their aliases. " +
-			"Try adding '-- -tags no_xxx' to the usqlgen command-line, where xxx is a DB tag from usql docs.")
-	}
 
 	for _, driver := range newDrivers {
 		// We have validated that the schemes we are unregistering are not from linked drivers.
@@ -236,6 +233,18 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 		return n, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 	return n, rows.Err()
+}
+
+func StartPprofServer() {
+	// handlers must be registered separately with blank import net/http/pprof
+	go func() {
+		address := os.Getenv("USQL_PPROF_ADDRESS")
+		if address == "" {
+			address = "localhost:6060"
+		}
+		fmt.Println("Starting pprof web server on", address, "...")
+		fmt.Println(http.ListenAndServe(address, nil))
+	}()
 }
 
 func closeQuietly(c io.Closer) {

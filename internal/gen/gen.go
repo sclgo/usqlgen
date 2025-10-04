@@ -15,6 +15,7 @@ import (
 	"github.com/ansel1/merry/v2"
 	"github.com/murfffi/gorich/lang"
 	"github.com/murfffi/gorich/sclerr"
+	"github.com/samber/lo"
 	"github.com/sclgo/usqlgen/internal/run"
 	"modernc.org/fileutil"
 )
@@ -39,6 +40,14 @@ type Input struct {
 
 	IncludeSemicolon bool
 	KeepCgo          bool
+
+	// MainOpts values control the overall main.go generation, not
+	// imported drivers
+	MainOpts MainOptions
+}
+
+type MainOptions struct {
+	PprofWeb bool
 }
 
 type Result struct {
@@ -92,18 +101,21 @@ func (i Input) AllDownload() (Result, error) {
 		result.DownloadedUsqlVersion = fmt.Sprint(downloadedVersion)
 	}
 
-	// We expect that the DownloadedUsqlVersion is already at go1.23+
-	//err = i.runGo("mod", "edit", "-go=1.23")
-	//if err != nil {
-	//	return result, merry.Wrap(err)
-	//}
+	// We expect that the DownloadedUsqlVersion is already uses a Go version
+	// no older the version usqlgen expects.
+	// Otherwise, we would need to edit the generated go.mod to ensure that
+	// go version matches the code we inject.
 
-	if i.Imports != nil {
+	if i.Imports != nil || lo.IsNotEmpty(i.MainOpts) {
 		err = i.replaceMain()
 		if err != nil {
 			return result, err
 		}
 	}
+
+	// We believe that we don't need to "go get" packages in the --imports params,
+	// since this is handled by CompileCmd using either -mod=mod for build/install,
+	// or "go mod tidy for generate
 
 	err = i.populateDbMgr()
 	if err != nil {
@@ -294,21 +306,6 @@ func (i Input) adjustCgoTags() error {
 func (i Input) log(msg string, args ...any) {
 	_, _ = fmt.Fprintf(os.Stderr, msg, args...)
 }
-
-// We believe that we don't need to go get the --imports params,
-// since this is handled by CompileCmd using either -mod=mod for build/install,
-// or "go mod tidy for generate
-//
-//func (i Input) getImports() error {
-//	if i.Gets != nil {
-//		// The modules in get may have already delivered those packages
-//		// We don't want to run 'go get' for them because it will upgrade the explicit version
-//		i.Imports = lo.Filter(i.Imports, func(item string, index int) bool {
-//			return i.runGo("list", "-find", item) != nil // returns exit code 1 if not found
-//		})
-//	}
-//	return doGoGet(i.Imports, i)
-//}
 
 func doGoGet(gets []string, i Input) error {
 	for _, gs := range gets {
