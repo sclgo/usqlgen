@@ -8,7 +8,7 @@ import (
 )
 
 func TestApplyOptionsFromNames(t *testing.T) {
-	t.Run("cse insensitive", func(t *testing.T) {
+	t.Run("case insensitive", func(t *testing.T) {
 		genInput := gen.Input{}
 		err := applyOptionsFromNames([]string{"IncludeSemicoloN"}, &genInput)
 		require.NoError(t, err)

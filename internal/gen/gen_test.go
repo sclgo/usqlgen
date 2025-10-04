@@ -2,6 +2,7 @@ package gen_test
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -57,11 +58,28 @@ func TestInput_All(t *testing.T) {
 		require.Contains(t, stdoutStr, "github.com/MonetDB/MonetDB-Go/v2 v2.0.1")
 	})
 
+	t.Run("pprof", func(t *testing.T) {
+		inp := gen.Input{
+			MainOpts: gen.MainOptions{
+				PprofWeb: true,
+			},
+		}
+		stdoutStr := runGenAll(t, inp, nil)
+		require.Contains(t, stdoutStr, "Starting pprof web server on")
+	})
+
+	t.Run("not a driver", func(t *testing.T) {
+		inp := gen.Input{
+			Imports: []string{"log"},
+		}
+		stdoutStr := runGenAll(t, inp, nil)
+
+		require.Contains(t, stdoutStr, "Did not find new drivers")
+	})
 }
 
 func runGenAll(t *testing.T, inp gen.Input, env []string) string {
 	tmpDir := t.TempDir()
-	defer fi.NoErrorF(fi.Bind(os.RemoveAll, tmpDir), t)
 	inp.WorkingDir = tmpDir
 
 	err := inp.All()
@@ -81,6 +99,7 @@ func runGenAll(t *testing.T, inp gen.Input, env []string) string {
 	err = cmd.Run()
 	require.NoError(t, err, buf.String())
 
+	fmt.Println("\n", "go list -m all:")
 	cmd = exec.Command("go", "list", "-m", "all")
 	cmd.Env = env
 	cmd.Dir = tmpDir
