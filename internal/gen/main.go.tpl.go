@@ -27,7 +27,7 @@ import _ "{{$val}}"
 
 func main() {
 	newDrivers := gen.RegisterNewDrivers(slices.Collect(maps.Keys(drivers.Available())))
-	if newDrivers == nil && {{len .Imports}} > 0 {
+	if len(newDrivers) == 0 && {{len .Imports}} > 0 {
 		fmt.Println("Did not find new drivers in packages {{ .Imports }}. " +
 			"Either the packages don't register drivers or an imported driver name clashes with existing drivers or their aliases. " +
 			"In the latter case, try adding '-- -tags no_xxx' to the usqlgen command-line, where xxx is a DB tag from usql docs.")

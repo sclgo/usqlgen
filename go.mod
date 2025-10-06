@@ -8,6 +8,7 @@ require (
 	github.com/murfffi/gorich v0.1.0
 	github.com/samber/lo v1.49.1
 	github.com/stretchr/testify v1.10.0
+	github.com/tam7t/sigprof v0.0.0-20160401200512-7750edaf4b70
 	github.com/testcontainers/testcontainers-go v0.35.0
 	github.com/urfave/cli/v2 v2.27.5
 	github.com/xo/dburl v0.23.3

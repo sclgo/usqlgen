@@ -33,6 +33,9 @@ The Examples section details those usecases.
 `usqlgen` is itself inspired by the 
 [OpenTelemetry Collector builder](https://opentelemetry.io/docs/collector/custom-collector/).
 
+`usqlgen` needs Go to be installed but using it requires only minimal Go knowledge and doesn't
+require editing any code.
+
 > [!IMPORTANT]
 > [usql](https://github.com/xo/usql) authors are aware of this project but support
 > only [their regular releases](https://github.com/xo/usql?tab=readme-ov-file#installing).
@@ -62,6 +65,9 @@ docker run --rm golang \
 chmod +x ./usql
 ```
 
+`usqlgen` isn't distributed as prebuilt binaries because running it requires Go installation anyway
+(locally or within a container).
+
 ## Quickstart
 
 To install `usql` with support for an additional driver, first review your driver documentation
@@ -77,12 +83,12 @@ usqlgen build --import "github.com/MonetDB/MonetDB-Go/v2"
 
 This creates `usql` executable in the current directory with its default built-in drivers 
 together with the driver for MonetDB.
-The additional driver is registered using a side-effect import (aka [blank import](https://go.dev/doc/effective_go#blank_import))
+The additional driver is registered using a side effect import (aka [blank import](https://go.dev/doc/effective_go#blank_import))
 of the package in the `--import` parameter. The respective module is automatically
 determined but can also be specified explicitly with `--get`.
 
 Unlike built-in databases, the `usql` DB URL (connection string) for the new database 
-is in the form `driverName:dsn`. For example, [MonetDB docs](https://github.com/MonetDB/MonetDB-Go#readme)
+is in the form `driverName:DSN`. For example, [MonetDB docs](https://github.com/MonetDB/MonetDB-Go#readme)
 state that the driver name is `monetdb` and the DSN format is `username:password@hostname:50000/database`.
 So to connect to MonetDB with the binary we just built, run:
 
@@ -121,24 +127,26 @@ with new drivers added with `--import`, including
 Informational commands and autocomplete won't work though - [for now](https://github.com/sclgo/usqlgen/issues/50).
 
 `usql` requires that connection strings are valid URIs or URLs, at least according to the Go `net/url` parsing algorithm.
-If you get an error that parameter in the form `driverName:dsn` can't be parsed as a URL,
+If you get an error that parameter in the form `driverName:DSN` can't be parsed as a URL,
 start `usql` without a connection string - in interactive mode or with the `-f` parameter. `usql` will start not connected to a DB.
-Then use the `\connect` command with two arguments driverName and dsn. In the `monetdb` example above, that would be:
+Then use the `\connect` command with two arguments driverName and DSN. In the `monetdb` example above, that would be:
 `\connect monetdb monetdb:password@localhost:50000/monetdb`.
 
 ## CGO usage
 
-`usqlgen build` and `usqlgen install` don't need [CGO](https://pkg.go.dev/cmd/cgo) to compile
-the generated `usql` codebase. You only need CGO if you:
+With `usqlgen`, [CGO support](https://pkg.go.dev/cmd/cgo) on the system is not needed in most cases.
+In contrast, compiling `usql` the regular way does require CGO. With `usqlgen`, you only need CGO if you:
 
 - import drivers that use CGO e.g. `--import github.com/sclgo/adbcduck-go`. The driver documentation should mention such
   usage.
 - add drivers that use CGO with tags e.g. `-- -tags duckdb` .
 
-When CGO is not available, `usqlgen` modifies the default "base" driver set,
+When CGO is not available, `usqlgen build/install` commands modify the default "base" driver set,
 replacing `sqlite3` (that requires CGO) with `moderncsqlite` (that doesn't).
 In that case, using the `sqlite3` scheme will run `moderncsqlite` underneath.
-You can opt out of that behavior either:
+`usqlgen` implements these replacements by adding build tags to the `go build` and 
+`go install` commands, which may clash with tags you provided explicitly.
+If you suspect that's the case, you can opt out of the above automation either:
 
 - by adding `--dboptions keepcgo`
 - by forcing Go to enable CGO with environment variable `CGO_ENABLED=1`.
@@ -241,9 +249,43 @@ usqlgen build --replace "github.com/go-sql-driver/mysql=github.com/go-sql-driver
 `usqlgen` may be useful even without changing drivers. For example, `usqlgen` provides the easiest way to
 get a `usql` binary without installing it with a package manager or cloning its Git repository:
 
-```bash
+```shell
 go run github.com/sclgo/usqlgen@latest build 
 ```
+
+`usqlgen` can also be used to add to `usql` packages that don't register drivers but provide some other
+useful import side effects. For example, [github.com/tam7t/sigprof](https://github.com/tam7t/sigprof) adds
+helpful signal handlers for troubleshooting - `usqlgen` itself is using it. Example command:
+
+Note that if none of the packages that you imported registered any drivers, you will see a warning
+every time you start `usql`.
+
+```shell
+$ usqlgen build -i github.com/tam7t/sigprof
+$ ./usql
+Did not find new drivers in packages [github.com/tam7t/sigprof]. Either the packages ...
+...
+```
+
+## Troubleshooting
+
+`usqlgen` generates and compiles a binary which can become pretty big so execution may take a bit of time.
+If `usqlgen` appears stuck, you can send the `USR1` signal to dump a file in your temp directory
+with the current stacktrace of all goroutines (Go lightweight threads). On Linux, an easy way to send
+the `USR1` signal is:
+
+```shell
+pkill -USR1 usqlgen
+```
+
+The program *won't* exit!
+
+`usqlgen` uses the `sigprof` library to implement this feature. Review 
+[its documentation](https://github.com/tam7t/sigprof) for other troubleshooting options it provides in `usqlgen`.
+
+Besides that, `usqlgen` supports standard options for troubleshooting Golang applications e.g.
+sending the `QUIT` signal or typing `Ctrl-\` on the console will print all stacktraces, then
+stop the program.
 
 ## Support
 
