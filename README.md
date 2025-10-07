@@ -254,7 +254,7 @@ go run github.com/sclgo/usqlgen@latest build
 ```
 
 `usqlgen` can also be used to add to `usql` packages that don't register drivers but provide some other
-useful import side effects. For example, [github.com/tam7t/sigprof](https://github.com/tam7t/sigprof) adds
+useful import side effects. For example, on Linux and MacOS, [github.com/tam7t/sigprof](https://github.com/tam7t/sigprof) adds
 helpful signal handlers for troubleshooting - `usqlgen` itself is using it. Example command:
 
 Note that if none of the packages that you imported registered any drivers, you will see a warning
@@ -280,7 +280,7 @@ pkill -USR1 usqlgen
 
 The program *won't* exit!
 
-`usqlgen` uses the `sigprof` library to implement this feature. Review 
+On Linux and MacOS, `usqlgen` uses the `sigprof` library to implement this feature. Review 
 [its documentation](https://github.com/tam7t/sigprof) for other troubleshooting options it provides in `usqlgen`.
 
 Besides that, `usqlgen` supports standard options for troubleshooting Golang applications e.g.
