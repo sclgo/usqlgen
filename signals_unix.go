@@ -3,7 +3,7 @@
 package main
 
 import (
-	// for USR1, USR2 handling e.g. "pkill -USR1 usqlgen" prints stacktrace
-	// see docs for details
+	// for USR1 (stack trace) and USR2 (heap profile) signals.
+	// See README for usage.
 	_ "github.com/tam7t/sigprof"
 )
