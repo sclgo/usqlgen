@@ -103,9 +103,12 @@ So to connect to MonetDB with the binary we just built, run:
 Above `monetdb` is repeated in the beginning of the DB URL because it is both the Go driver name,
 and the admin username in the beginning of the DSN.
 
-You can try the same with databases or data engines like
-[rqlite](https://github.com/rqlite/gorqlite?tab=readme-ov-file#driver-for-databasesql),
-[Dremio or Apache Drill](https://github.com/factset/go-drill), etc.
+You can try the same with databases or data engines like:
+
+- various SQLite derivatives - [rqlite](https://github.com/rqlite/gorqlite?tab=readme-ov-file#driver-for-databasesql),
+  [libsql / turso](https://github.com/tursodatabase/go-libsql)
+- [Dremio or Apache Drill](https://github.com/factset/go-drill), 
+- etc.
 
 `usqlgen` also allows you to import alternative drivers of supported databases. Examples include:
 
@@ -116,6 +119,8 @@ You can try the same with databases or data engines like
 - [github.com/mailru/go-clickhouse/v2](https://github.com/mailru/go-clickhouse) - HTTP-only alternative of the built-in Clickhouse driver
 - [github.com/sclgo/adbcduck-go](https://github.com/sclgo/adbcduck-go) - alternative driver for DuckDB on top of
   [its ADBC API](https://duckdb.org/docs/clients/adbc)
+- [github.com/ncruces/go-sqlite3/driver](https://github.com/ncruces/go-sqlite3) - another pure Go SQLite, based on
+  [wazero](https://github.com/wazero/wazero), as opposed to ccgo.
 
 For more options, see `usqlgen --help` or review the examples below.
 
@@ -269,6 +274,8 @@ Did not find new drivers in packages [github.com/tam7t/sigprof]. Either the pack
 
 ## Troubleshooting
 
+### Command is stuck or slow
+
 `usqlgen` generates and compiles a binary which can become pretty big so execution may take a bit of time.
 If `usqlgen` appears stuck, you can send the `USR1` signal to dump a file in your temp directory
 with the current stacktrace of all goroutines (Go lightweight threads). On Linux, an easy way to send
@@ -286,6 +293,14 @@ On Linux and MacOS, `usqlgen` uses the `sigprof` library to implement this featu
 Besides that, `usqlgen` supports standard options for troubleshooting Golang applications e.g.
 sending the `QUIT` signal or typing `Ctrl-\` on the console will print all stacktraces, then
 stop the program.
+
+### Compilation errors
+
+Any compilation errors during `build` or `install` commands are likely caused by
+incompatibility between the newly imported drivers and the existing ones.
+Trying adding `-- -tags no_base` to the command. If that resolves the compilation issue,
+but removes an existing driver that you need, try adding it specifically using the
+respective tag, documented in <https://github.com/xo/usql?tab=readme-ov-file#database-support>.
 
 ## Support
 
