@@ -140,7 +140,7 @@ func (c *CompileCommand) MakeFlags() []cli.Flag {
 			Destination: &c.Static,
 		},
 		&cli.BoolFlag{
-			Name:        "notrimpath",
+			Name:        "no-trimpath",
 			Usage:       `don't include -trimpath in compilation commands`,
 			Destination: &c.NoTrimPath,
 		},
