@@ -24,7 +24,8 @@ type CompileCommand struct {
 	DbOptions   cli.StringSlice
 
 	// Options that control compilation only
-	Static bool
+	Static     bool
+	NoTrimPath bool
 }
 
 func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error {
@@ -61,6 +62,10 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 	}
 
 	args = append(args, "-ldflags", ldflags)
+
+	if !c.NoTrimPath {
+		args = append(args, "-trimpath")
+	}
 
 	// NB: This might interfere with PassthroughArgs
 	// Required to avoid go mod tidy when adding just imports
@@ -133,6 +138,11 @@ func (c *CompileCommand) MakeFlags() []cli.Flag {
 			Name:        "static",
 			Usage:       `creates a static usql binary; implies env. var CGO_ENABLED=0`,
 			Destination: &c.Static,
+		},
+		&cli.BoolFlag{
+			Name:        "notrimpath",
+			Usage:       `don't include -trimpath in compilation commands`,
+			Destination: &c.NoTrimPath,
 		},
 	}, c.CommandBase.MakeFlags()...)
 }
