@@ -61,7 +61,7 @@ func TestBuild(t *testing.T) {
 			CompileCommand: minimalCompileCommand(),
 			output:         "-",
 		}
-		testVersion := "foobar"
+		testVersion := "1.2.3"
 		cmd.generator = func(input gen.Input) (gen.Result, error) {
 			res, err := minimalGoGenerator(input)
 			res.DownloadedUsqlVersion = testVersion
@@ -69,6 +69,7 @@ func TestBuild(t *testing.T) {
 		}
 
 		var buf bytes.Buffer
+		cmd.NoTrimPath = true
 		err := cmd.Action(&buf)
 		require.NoError(t, err)
 		require.Contains(t, buf.String(), testVersion+"_usqlgen")
