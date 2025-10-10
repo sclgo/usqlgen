@@ -237,12 +237,12 @@ func SimpleCopyWithInsert(ctx context.Context, db DB, rows *sql.Rows, table stri
 
 func StartPprofServer() {
 	// handlers must be registered separately with blank import net/http/pprof
+	address := os.Getenv("USQL_PPROF_ADDRESS")
+	if address == "" {
+		address = "localhost:6060"
+	}
+	fmt.Println("Starting pprof web server on", address, "...")
 	go func() {
-		address := os.Getenv("USQL_PPROF_ADDRESS")
-		if address == "" {
-			address = "localhost:6060"
-		}
-		fmt.Println("Starting pprof web server on", address, "...")
 		fmt.Println(http.ListenAndServe(address, nil))
 	}()
 }
