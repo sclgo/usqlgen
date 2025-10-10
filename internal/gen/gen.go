@@ -13,8 +13,8 @@ import (
 	"text/template"
 
 	"github.com/ansel1/merry/v2"
+	"github.com/murfffi/gorich/helperr"
 	"github.com/murfffi/gorich/lang"
-	"github.com/murfffi/gorich/sclerr"
 	"github.com/samber/lo"
 	"github.com/sclgo/usqlgen/internal/run"
 	"modernc.org/fileutil"
@@ -237,7 +237,7 @@ func (i Input) populateMain() error {
 	if err != nil {
 		return merry.Wrap(err)
 	}
-	defer sclerr.CloseQuietly(mainFile)
+	defer helperr.CloseQuietly(mainFile)
 
 	err = i.Main(mainFile)
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/murfffi/gorich/sclerr"
+	"github.com/murfffi/gorich/helperr"
 	"github.com/sclgo/usqlgen/internal/gen"
 	"github.com/stretchr/testify/require"
 
@@ -71,7 +71,7 @@ func TestSimpleCopyWithInsert_SqliteDest(t *testing.T) {
 func runCopyTests(t *testing.T, spec copyTestSpec) {
 	sourceDb, err := sql.Open(spec.driver, spec.dsn)
 	require.NoError(t, err)
-	defer sclerr.CloseQuietly(sourceDb)
+	defer helperr.CloseQuietly(sourceDb)
 
 	copyFunc := gen.BuildSimpleCopy(gen.FixedPlaceholder("?"))
 
@@ -82,7 +82,7 @@ func runCopyTests(t *testing.T, spec copyTestSpec) {
 	t.Run("scantype is expected", func(t *testing.T) {
 		someRows, err := sourceDb.QueryContext(ctx, spec.randomDataQuery)
 		require.NoError(t, err)
-		defer sclerr.CloseQuietly(someRows)
+		defer helperr.CloseQuietly(someRows)
 
 		colTypes, err := someRows.ColumnTypes()
 		require.NoError(t, err)
@@ -93,7 +93,7 @@ func runCopyTests(t *testing.T, spec copyTestSpec) {
 
 		someRows, err := sourceDb.QueryContext(ctx, spec.randomDataQuery)
 		require.NoError(t, err)
-		defer sclerr.CloseQuietly(someRows)
+		defer helperr.CloseQuietly(someRows)
 
 		rowsAdded, err := copyFunc(ctx, db, someRows, "hello")
 		require.NoError(t, err)
@@ -106,7 +106,7 @@ func runCopyTests(t *testing.T, spec copyTestSpec) {
 	t.Run("copy to table with name and columns", func(t *testing.T) {
 		someRows, err := sourceDb.QueryContext(ctx, spec.randomDataQuery)
 		require.NoError(t, err)
-		defer sclerr.CloseQuietly(someRows)
+		defer helperr.CloseQuietly(someRows)
 
 		rowsAdded, err := copyFunc(ctx, db, someRows, "hello(a, b)")
 		require.NoError(t, err)
@@ -118,7 +118,7 @@ func runCopyTests(t *testing.T, spec copyTestSpec) {
 	t.Run("copy to table with insert", func(t *testing.T) {
 		someRows, err := sourceDb.QueryContext(ctx, spec.randomDataQuery)
 		require.NoError(t, err)
-		defer sclerr.CloseQuietly(someRows)
+		defer helperr.CloseQuietly(someRows)
 
 		rowsAdded, err := copyFunc(ctx, db, someRows, "insert into hello(a, b) values (?, ?)")
 		require.NoError(t, err)
@@ -137,7 +137,7 @@ func prepareTargetDb(t *testing.T) (*sql.DB, func()) {
 	return db, func() {
 		_, err := db.Exec("drop table if exists hello")
 		require.NoError(t, err)
-		sclerr.CloseQuietly(db)
+		helperr.CloseQuietly(db)
 	}
 }
 
@@ -152,7 +152,7 @@ func TestSimpleCopyWithInsert_EdgeCases(t *testing.T) {
 	spec := csvqSourceSpec
 	sourceDb, err := sql.Open(spec.driver, spec.dsn)
 	require.NoError(t, err)
-	defer sclerr.CloseQuietly(sourceDb)
+	defer helperr.CloseQuietly(sourceDb)
 
 	targetDb, cleanup := prepareTargetDb(t)
 	defer cleanup()
@@ -166,7 +166,7 @@ func TestSimpleCopyWithInsert_EdgeCases(t *testing.T) {
 
 	someRows, err := sourceDb.QueryContext(ctx, spec.randomDataQuery)
 	require.NoError(t, err)
-	defer sclerr.CloseQuietly(someRows)
+	defer helperr.CloseQuietly(someRows)
 
 	rowsAdded, err := gen.SimpleCopyWithInsert(
 		ctx,

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/ansel1/merry/v2"
-	"github.com/murfffi/gorich/sclerr"
+	"github.com/murfffi/gorich/helperr"
 )
 
 // This code is based on https://github.com/xyproto/unzip/blob/v1.0.0/unzip.go
@@ -23,7 +23,7 @@ func ExtractZip(zipFilename, destPath string) error {
 	if err != nil {
 		return merry.Wrap(err)
 	}
-	defer sclerr.CloseQuietly(zipReader)
+	defer helperr.CloseQuietly(zipReader)
 
 	// For each file in the archive
 	for _, archiveReader := range zipReader.File {
@@ -43,7 +43,7 @@ func extractEntry(archiveReader *zip.File, destPath string) error {
 	if err != nil {
 		return merry.Wrap(err)
 	}
-	defer sclerr.CloseQuietly(archiveFile)
+	defer helperr.CloseQuietly(archiveFile)
 
 	// Prepare to write the file
 	finalPath := filepath.Join(destPath, archiveReader.Name)
@@ -64,7 +64,7 @@ func extractEntry(archiveReader *zip.File, destPath string) error {
 	if err != nil {
 		return err
 	}
-	defer sclerr.CloseQuietly(destinationFile)
+	defer helperr.CloseQuietly(destinationFile)
 
 	// Write the destination file
 	_, err = io.Copy(destinationFile, archiveFile)

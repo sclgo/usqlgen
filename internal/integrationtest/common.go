@@ -27,7 +27,7 @@ func IntegrationOnly(t *testing.T) {
 //func SanityPing(ctx context.Context, t *testing.T, dsn string, driver string) {
 //	db, err := sql.Open(driver, dsn)
 //	require.NoError(t, err)
-//	defer sclerr.CloseQuietly(db)
+//	defer helperr.CloseQuietly(db)
 //	err = db.PingContext(ctx)
 //	require.NoError(t, err)
 //}

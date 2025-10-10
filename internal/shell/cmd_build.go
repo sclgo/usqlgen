@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/ansel1/merry/v2"
-	"github.com/murfffi/gorich/sclerr"
+	"github.com/murfffi/gorich/helperr"
 	"github.com/urfave/cli/v2"
 )
 
@@ -68,7 +68,7 @@ func (c *BuildCommand) Action(stdout io.Writer) error {
 		if err != nil {
 			return merry.Wrap(err)
 		}
-		defer sclerr.CloseQuietly(destFile)
+		defer helperr.CloseQuietly(destFile)
 		_, err = io.Copy(stdout, destFile)
 	}
 
