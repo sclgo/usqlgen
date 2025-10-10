@@ -3,17 +3,19 @@
 package clickhouse_test
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/murfffi/gorich/fi"
 	"github.com/murfffi/gorich/sclerr"
-	"github.com/samber/lo"
 	"github.com/sclgo/usqlgen/internal/gen"
 	it "github.com/sclgo/usqlgen/internal/integrationtest"
 	"github.com/stretchr/testify/require"
@@ -21,14 +23,30 @@ import (
 
 func TestClickhouse(t *testing.T) {
 	fi.SkipLongTest(t)
-	stop := startClickhouse(t)
-	defer stop()
+	stderrPipe, stop := startClickhouse(t)
+	defer stop() // don't use t.Cleanup here so stop gets executed even on timeout-induced panic
+
+	scanner := bufio.NewScanner(stderrPipe)
+	timer := time.NewTimer(20 * time.Second)
+
+	ch := make(chan bool)
+	go func() {
+		ch <- waitForClickhouse(scanner)
+	}()
+
+	select {
+	case <-timer.C:
+		require.Fail(t, "clickhouse server didn't start in time")
+	case ready := <-ch:
+		require.True(t, ready, "clickhouse server failed to start")
+	}
+	timer.Stop()
 
 	inp := gen.Input{
 		Imports: []string{"github.com/mailru/go-clickhouse/v2"},
 	}
 
-	dsn := "chhttp:http://localhost/"
+	dsn := "chhttp:http://localhost:8123/"
 
 	t.Run("basic query", func(t *testing.T) {
 		it.CheckGenAll(t, inp, dsn, `select 'Hello World'`)
@@ -54,7 +72,17 @@ func TestClickhouse(t *testing.T) {
 	})
 }
 
-func startClickhouse(t *testing.T) (stop func()) {
+func waitForClickhouse(scanner *bufio.Scanner) bool {
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, "Application: Ready for connections") {
+			return true
+		}
+	}
+	return false
+}
+
+func startClickhouse(t *testing.T) (io.ReadCloser, func()) {
 	dir := t.TempDir()
 	clickhouseBinName := filepath.Join(dir, "clickhouse")
 	clickhouseBin, err := os.OpenFile(clickhouseBinName, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0700)
@@ -71,11 +99,13 @@ func startClickhouse(t *testing.T) (stop func()) {
 
 	cmd := exec.Command(clickhouseBinName, "server")
 	cmd.Dir = dir
+	pipe := fi.NoError(cmd.StderrPipe()).Require(t)
 	err = cmd.Start()
 	require.NoError(t, err)
 
-	return func() {
-		lo.Must0(cmd.Process.Kill())
+	return pipe, func() {
+		t.Log("Stopping clickhouse")
+		require.NoError(t, cmd.Process.Kill())
 		_ = cmd.Wait()
 	}
 }
