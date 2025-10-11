@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/murfffi/gorich/fi"
+	"github.com/murfffi/gorich/lang"
 	"github.com/sclgo/usqlgen/internal/shell"
 	"github.com/stretchr/testify/require"
 )
@@ -25,7 +26,7 @@ func TestVersion(t *testing.T) {
 
 	tmpDir := t.TempDir()
 	currentWorkDir := fi.NoError(os.Getwd()).Require(t)
-	defer fi.NoErrorF(fi.Bind(os.Chdir, currentWorkDir), t)
+	defer fi.NoErrorF(lang.Bind(os.Chdir, currentWorkDir), t)
 	require.NoError(t, os.Chdir(tmpDir))
 
 	cmds := shell.NewCommands(nil)

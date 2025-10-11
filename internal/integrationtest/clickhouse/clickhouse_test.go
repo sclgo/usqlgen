@@ -3,19 +3,17 @@
 package clickhouse_test
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/murfffi/gorich/fi"
-	"github.com/murfffi/gorich/sclerr"
+	"github.com/murfffi/gorich/helperr"
 	"github.com/sclgo/usqlgen/internal/gen"
 	it "github.com/sclgo/usqlgen/internal/integrationtest"
 	"github.com/stretchr/testify/require"
@@ -26,21 +24,8 @@ func TestClickhouse(t *testing.T) {
 	stderrPipe, stop := startClickhouse(t)
 	defer stop() // don't use t.Cleanup here so stop gets executed even on timeout-induced panic
 
-	scanner := bufio.NewScanner(stderrPipe)
-	timer := time.NewTimer(20 * time.Second)
-
-	ch := make(chan bool)
-	go func() {
-		ch <- waitForClickhouse(scanner)
-	}()
-
-	select {
-	case <-timer.C:
-		require.Fail(t, "clickhouse server didn't start in time")
-	case ready := <-ch:
-		require.True(t, ready, "clickhouse server failed to start")
-	}
-	timer.Stop()
+	fi.RequireReaderContains(t, stderrPipe, "Application: Ready for connections", 20*time.Second, "clickhouse log")
+	_ = stderrPipe.Close()
 
 	inp := gen.Input{
 		Imports: []string{"github.com/mailru/go-clickhouse/v2"},
@@ -72,26 +57,16 @@ func TestClickhouse(t *testing.T) {
 	})
 }
 
-func waitForClickhouse(scanner *bufio.Scanner) bool {
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.Contains(line, "Application: Ready for connections") {
-			return true
-		}
-	}
-	return false
-}
-
 func startClickhouse(t *testing.T) (io.ReadCloser, func()) {
 	dir := t.TempDir()
 	clickhouseBinName := filepath.Join(dir, "clickhouse")
 	clickhouseBin, err := os.OpenFile(clickhouseBinName, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0700)
 	require.NoError(t, err)
-	defer sclerr.CloseQuietly(clickhouseBin)
+	defer helperr.CloseQuietly(clickhouseBin)
 
 	resp, err := http.Get("https://builds.clickhouse.com/master/amd64/clickhouse")
 	require.NoError(t, err)
-	defer sclerr.CloseQuietly(resp.Body)
+	defer helperr.CloseQuietly(resp.Body)
 
 	_, err = io.Copy(clickhouseBin, resp.Body)
 	require.NoError(t, err)

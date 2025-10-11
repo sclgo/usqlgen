@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/murfffi/gorich/fi"
+	"github.com/murfffi/gorich/lang"
 	"github.com/sclgo/usqlgen/internal/gen"
 	"github.com/sclgo/usqlgen/internal/run"
 	"github.com/stretchr/testify/require"
@@ -46,7 +47,7 @@ func TestBuild(t *testing.T) {
 			output:         ".",
 		}
 		currentWorkDir := fi.NoError(os.Getwd()).Require(t)
-		defer fi.NoErrorF(fi.Bind(os.Chdir, currentWorkDir), t)
+		defer fi.NoErrorF(lang.Bind(os.Chdir, currentWorkDir), t)
 		require.NoError(t, os.Chdir(tmpDir))
 		err := cmd.Action(nil)
 		require.NoError(t, err)
@@ -82,7 +83,7 @@ func TestBuild(t *testing.T) {
 		require.NoError(t, cmd.Imports.Set("github.com/sclgo/impala-go"))
 
 		currentWorkDir := fi.NoError(os.Getwd()).Require(t)
-		defer fi.NoErrorF(fi.Bind(os.Chdir, currentWorkDir), t)
+		defer fi.NoErrorF(lang.Bind(os.Chdir, currentWorkDir), t)
 		require.NoError(t, os.Chdir(tmpDir))
 		err := cmd.Action(nil)
 		require.NoError(t, err)

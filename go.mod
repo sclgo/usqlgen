@@ -5,7 +5,7 @@ go 1.24.6
 require (
 	github.com/ansel1/merry/v2 v2.2.1
 	github.com/mithrandie/csvq-driver v1.7.0
-	github.com/murfffi/gorich v0.1.0
+	github.com/murfffi/gorich v0.3.0
 	github.com/samber/lo v1.49.1
 	github.com/stretchr/testify v1.10.0
 	github.com/tam7t/sigprof v0.0.0-20160401200512-7750edaf4b70

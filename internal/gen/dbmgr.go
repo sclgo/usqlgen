@@ -248,7 +248,7 @@ func StartPprofServer() {
 }
 
 func closeQuietly(c io.Closer) {
-	// Can't use sclerr since dbmgr is standalone.
+	// Can't use helperr since dbmgr is standalone.
 	_ = c.Close()
 }
 
