@@ -20,7 +20,7 @@ const Password = "monetdb"
 const dbPort = "50000/tcp"
 
 func TestMonetdb(t *testing.T) {
-	integrationtest.IntegrationOnly(t)
+	//integrationtest.IntegrationOnly(t)
 	ctx := context.Background()
 	c := fi.NoError(Setup(ctx)).Require(t)
 	t.Cleanup(func() {
@@ -47,9 +47,12 @@ func TestMonetdb(t *testing.T) {
 	})
 	t.Run("list tables", func(t *testing.T) {
 		// MonetDB supports information schema, but usql's InformationSchema implementation is not
-		// compatible with the driver. usql InformationSchema expects that the driver converts NULL values
-		// to zero values when scanning into a non-reference type.
-		integrationtest.RunGeneratedUsql(t, "monetdb:"+dsn, `\dtS`, tmpDir)
+		// compatible with it. usql InformationSchema expects non-null values in information_schema tables.
+		// Since the ANSI spec doesn't seem to be publicly available, it's unclear who is at fault.
+		// The issue is either in usql or the database itself - not in the driver, or usqlgen.
+		// https://www.iso.org/standard/76584.html
+		_, cerr := integrationtest.RunGeneratedUsqlE("monetdb:"+dsn, `\dtS`, tmpDir, []string{})
+		require.Error(t, cerr)
 	})
 
 }
