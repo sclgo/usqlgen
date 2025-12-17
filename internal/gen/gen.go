@@ -127,7 +127,6 @@ func (i Input) AllDownload() (Result, error) {
 		return result, err
 	}
 
-	i.Replaces = append(i.Replaces, "github.com/sclgo/usqlschema=/home/mnozhchev/src/sclgo/usqlschema")
 	err = i.goModReplace(i.Replaces)
 	if err != nil {
 		return result, err

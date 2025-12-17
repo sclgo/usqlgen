@@ -20,7 +20,7 @@ const Password = "monetdb"
 const dbPort = "50000/tcp"
 
 func TestMonetdb(t *testing.T) {
-	//integrationtest.IntegrationOnly(t)
+	integrationtest.IntegrationOnly(t)
 	ctx := context.Background()
 	c := fi.NoError(Setup(ctx)).Require(t)
 	t.Cleanup(func() {
