@@ -40,8 +40,8 @@ func NewReader(db drivers.DB, opts ...metadata.ReaderOption) metadata.Reader {
 	ts, err := is.Tables(metadata.Filter{
 		WithSystem: true,
 	})
-	if err != nil {
-		env.Log.Warnf("Could not enable information_schema based metadata, falling back to default: %v", err)
+	if err != nil {	
+		// TODO find a way to reasonably log
 		return struct{}{} // assume information schema not supported
 	}
 	// This should be fast even if there are a lot of schemas since we are not iterating over the result.
