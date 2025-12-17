@@ -1,5 +1,7 @@
 package gen
 
+// The following code replaces main.go in usql if required as determined by Input.shouldReplaceMain.
+
 // mainTpl contains the template as a constant as opposed to using go:embed with a separate
 // file because this way staticcheck (and by extension golangci-lint) can pick up errors
 // with SA1001
@@ -14,6 +16,8 @@ import (
 	"github.com/xo/usql/drivers"
 	"github.com/xo/usql/env"
 	"github.com/xo/dburl"
+	"github.com/xo/usql/drivers/metadata"
+	infos "github.com/xo/usql/drivers/metadata/informationschema"
 
 	_ "github.com/xo/usql/internal"
 	{{if .MainOpts.PprofWeb}}
@@ -25,6 +29,26 @@ import (
 import _ "{{$val}}"
 {{end}}
 
+func NewReader(db drivers.DB, opts ...metadata.ReaderOption) metadata.Reader {
+	newIS := infos.New(
+		infos.WithPlaceholder(gen.FixedPlaceholder("?")),
+	)
+	is := newIS(db, opts...).(metadata.TableReader)
+	if isl, ok := is.(interface{SetLimit(int)}); ok {
+		isl.SetLimit(1) // 0 is not supported by InformationSchema because it treats the zero-value as no filter.
+	}
+	ts, err := is.Tables(metadata.Filter{
+		WithSystem: true,
+	})
+	if err != nil {
+		fmt.Println(err)
+		return struct{}{} // assume information schema not supported
+	}
+	// This should be fast even if there are a lot of schemas since we are not iterating over the result.
+	_ = ts.Close()
+	return is
+}
+
 func main() {
 	newDrivers := gen.RegisterNewDrivers(slices.Collect(maps.Keys(drivers.Available())))
 	if len(newDrivers) == 0 && {{len .Imports}} > 0 {
@@ -35,6 +59,7 @@ func main() {
 	for _, driver := range newDrivers {
 		drivers.Register(driver, drivers.Driver{
 			Copy: gen.BuildSimpleCopy(gen.FixedPlaceholder("?")),
+			NewMetadataReader: NewReader,
 			{{if not .IncludeSemicolon}}
 			Process: func(_ *dburl.URL, prefix string, sqlstr string) (string, string, bool, error) {
 				sqlstr = gen.SemicolonEndRE.ReplaceAllString(sqlstr, "")
