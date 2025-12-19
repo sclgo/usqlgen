@@ -27,8 +27,7 @@ func GetDsn(ctx context.Context, c testcontainers.Container) string {
 
 func Setup(ctx context.Context) (testcontainers.Container, error) {
 	req := testcontainers.ContainerRequest{
-		// Right now databend-go transaction prepared statements work on nightly but not on latest
-		Image:        "datafuselabs/databend:nightly",
+		Image:        "datafuselabs/databend:latest",
 		ExposedPorts: []string{"8000/tcp"},
 		Env: map[string]string{
 			"QUERY_DEFAULT_USER":     Username,
@@ -56,17 +55,22 @@ func TestDatabend(t *testing.T) {
 		Imports: []string{"github.com/datafuselabs/databend-go"},
 	}
 
+	tmpDir := t.TempDir()
+	inp.WorkingDir = tmpDir
+
+	err := inp.All()
+	require.NoError(t, err)
+
 	t.Run("basic query", func(t *testing.T) {
-		integrationtest.CheckGenAll(t, inp, "databend:"+dsn, query)
+		integrationtest.RunGeneratedUsql(t, "databend:"+dsn, query, tmpDir)
+	})
+
+	t.Run("metadata", func(t *testing.T) {
+		output := integrationtest.RunGeneratedUsql(t, "databend:"+dsn, `\dtS`, tmpDir)
+		require.Contains(t, output, "backtrace") // a system table
 	})
 
 	t.Run("copy", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		inp.WorkingDir = tmpDir
-
-		err := inp.All()
-		require.NoError(t, err)
-
 		output := integrationtest.RunGeneratedUsql(t, "databend:"+dsn, "create table dest(col1 string, col2 string);", tmpDir)
 		require.Contains(t, output, "CREATE TABLE")
 

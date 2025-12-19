@@ -33,17 +33,23 @@ func TestClickhouse(t *testing.T) {
 
 	dsn := "chhttp:http://localhost:8123/"
 
+	tmpDir := t.TempDir()
+	inp.WorkingDir = tmpDir
+
+	err := inp.All()
+	require.NoError(t, err)
+
 	t.Run("basic query", func(t *testing.T) {
-		it.CheckGenAll(t, inp, dsn, `select 'Hello World'`)
+		it.RunGeneratedUsql(t, dsn, `select 'Hello World'`, tmpDir)
+	})
+
+	t.Run("metadata", func(t *testing.T) {
+		_, _ = it.RunGeneratedUsqlE(dsn, "create table tmptmp(col1 varchar, col2 varchar) PRIMARY KEY col1;", tmpDir, nil)
+		output := it.RunGeneratedUsql(t, dsn, `\dtS`, tmpDir)
+		require.Contains(t, output, "tmptmp")
 	})
 
 	t.Run("copy", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		inp.WorkingDir = tmpDir
-
-		err := inp.All()
-		require.NoError(t, err)
-
 		_, _ = it.RunGeneratedUsqlE(dsn, "create table dest(col1 varchar, col2 varchar) PRIMARY KEY col1;", tmpDir, nil)
 		// ignoring error because usql -c, for some reason, fails if RowsAffected returns error
 		// chhttp returns error from RowsAffected because it doesn't support it

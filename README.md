@@ -129,7 +129,7 @@ For more options, see `usqlgen --help` or review the examples below.
 Most `usql` [backslash (meta) commands](https://github.com/xo/usql?tab=readme-ov-file#backslash-commands) work 
 with new drivers added with `--import`, including 
 [cross-database `\copy`](https://github.com/xo/usql?tab=readme-ov-file#copying-between-databases).
-Informational commands and autocomplete won't work though - [for now](https://github.com/sclgo/usqlgen/issues/50).
+Informational commands will work though if the database provides ANSI-compatible `information_schema`.
 
 `usql` requires that connection strings are valid URIs or URLs, at least according to the Go `net/url` parsing algorithm.
 If you get an error that parameter in the form `driverName:DSN` can't be parsed as a URL,

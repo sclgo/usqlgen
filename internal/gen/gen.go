@@ -106,7 +106,7 @@ func (i Input) AllDownload() (Result, error) {
 	// Otherwise, we would need to edit the generated go.mod to ensure that
 	// go version matches the code we inject.
 
-	if i.Imports != nil || lo.IsNotEmpty(i.MainOpts) {
+	if i.shouldReplaceMain() {
 		err = i.replaceMain()
 		if err != nil {
 			return result, err
@@ -140,6 +140,10 @@ func (i Input) AllDownload() (Result, error) {
 	}
 
 	return result, err
+}
+
+func (i Input) shouldReplaceMain() bool {
+	return i.Imports != nil || lo.IsNotEmpty(i.MainOpts)
 }
 
 func (i Input) getUSQLModuleVersion() string {
