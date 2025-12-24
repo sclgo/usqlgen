@@ -56,8 +56,17 @@ var csvqSourceSpec = copyTestSpec{
 }
 
 func TestRegisterNewDrivers(t *testing.T) {
-	newDrivers := gen.RegisterNewDrivers(sql.Drivers())
-	require.Empty(t, newDrivers)
+	t.Run("empty", func(t *testing.T) {
+		newDrivers := gen.RegisterNewDrivers(sql.Drivers())
+		require.Empty(t, newDrivers)
+	})
+}
+
+func TestRegisterCurrentDrivers(t *testing.T) {
+	t.Run("short name", func(t *testing.T) {
+		newDrivers := gen.RegisterCurrentDrivers(nil, []string{"d1"})
+		require.Equal(t, []string{"d1"}, newDrivers)
+	})
 }
 
 func TestSimpleCopyWithInsert_SqliteDest(t *testing.T) {
