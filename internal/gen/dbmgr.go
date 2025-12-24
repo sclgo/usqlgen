@@ -51,14 +51,20 @@ func expand(drivers []string) set {
 // RegisterNewDrivers registers in xo/dburl all database/sql.Drivers()
 // that are not present in provided existing list.
 func RegisterNewDrivers(existing []string) []string {
+	return RegisterCurrentDrivers(existing, sql.Drivers())
+}
+
+func RegisterCurrentDrivers(existing []string, current []string) []string {
 	existingAll := expand(existing)
-	newDrivers := findNew(sql.Drivers(), existingAll)
+	newDrivers := findNew(current, existingAll)
 
 	for _, driver := range newDrivers {
 		// We have validated that the schemes we are unregistering are not from linked drivers.
 		dburl.Unregister(driver)
 		scheme := getScheme(driver, existingAll)
-		dburl.Unregister(scheme.Aliases[0])
+		for _, alias := range scheme.Aliases {
+			dburl.Unregister(alias)
+		}
 
 		dburl.Register(scheme)
 	}
