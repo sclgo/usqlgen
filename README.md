@@ -158,10 +158,9 @@ If you suspect that's the case, you can opt out of the above automation either:
 - by adding tags to explicitly include or exclude relevant drivers e.g. `-- -tags no_sqlite3`
 
 CGO is also affected by the `--static` flag for `usqlgen build`
-or `usqlgen install` which disables `CGO` and enables static linking.
+or `usqlgen install`. The flag disables `CGO` and enables static linking.
 
-All in all, `usqlgen` and the `usql` binaries it produces are very portable, even more portable than regular `xo/usql`,
-especially with `--static` flag.
+All in all, `usqlgen`, and the `usql` binaries it produces, are very portable, especially with `--static` flag.
 
 ## Examples
 
