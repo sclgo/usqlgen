@@ -26,7 +26,7 @@ In most cases, using `usql` directly is best. `usqlgen` helps when you want to a
 - you want to use alternative driver for a database supported by `usql`. 
 - you want to use a different version or a fork of a bundled driver
 - you are working with a niche database which is not supported by `usql` yet
-  - consider contributing the support to `usql` at some point
+  - consider [contributing](https://github.com/xo/usql/blob/master/CONTRIBUTING.md) the support to `usql` at some point
  
 The Examples section details those usecases.
 
