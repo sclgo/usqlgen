@@ -3,9 +3,7 @@
 `usqlgen` creates custom distributions of [github.com/xo/usql](https://github.com/xo/usql) —
 a universal single-binary SQL CLI, built by the [github.com/xo](https://github.com/xo) team, and 
 inspired by [psql](https://www.postgresql.org/docs/current/app-psql.html).
-
-`usql` is great because it is a multi-platform, multi-database SQL client in a single binary. 
-Learn more about it from its [README](https://github.com/xo/usql#readme).
+With `usqlgen`, you can turn any Go `database/sql` driver into a CLI with a single command.
 
 `usqlgen` builds on usql's extensibility to allow including arbitrary drivers and other customizations,
 without needing to fork.
@@ -107,7 +105,10 @@ You can try the same with databases or data engines like:
 
 - various SQLite derivatives - [rqlite](https://github.com/rqlite/gorqlite?tab=readme-ov-file#driver-for-databasesql),
   [libsql / turso](https://github.com/tursodatabase/go-libsql)
-- [Dremio or Apache Drill](https://github.com/factset/go-drill), 
+- [Dremio or Apache Drill](https://github.com/factset/go-drill),
+- [Cloudflare D1](https://github.com/SyneHQ/d1_go_sql),
+- [TDEngine](https://github.com/taosdata/driver-go) - [a time-series database](https://tdengine.com/tsdb/),
+- 
 - etc.
 
 `usqlgen` also allows you to import alternative drivers of supported databases. Examples include:
@@ -121,6 +122,7 @@ You can try the same with databases or data engines like:
   [its ADBC API](https://duckdb.org/docs/clients/adbc)
 - [github.com/ncruces/go-sqlite3/driver](https://github.com/ncruces/go-sqlite3) - another pure Go SQLite, based on
   [wazero](https://github.com/wazero/wazero), as opposed to ccgo.
+- [github.com/mattn/go-oci8](https://github.com/mattn/go-oci8) - alternative Oracle driver, wrapping the official Oracle client
 
 For more options, see `usqlgen --help` or review the examples below.
 
