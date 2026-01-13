@@ -108,7 +108,9 @@ You can try the same with databases or data engines like:
 - [Dremio or Apache Drill](https://github.com/factset/go-drill),
 - [Cloudflare D1](https://github.com/SyneHQ/d1_go_sql),
 - [TDEngine](https://github.com/taosdata/driver-go) - [a time-series database](https://tdengine.com/tsdb/),
-- 
+- [IBM DB2](https://github.com/ibmdb/go_ibm_db) - vanilla usql makes you use ODBC to access DB2. ODBC might not be available on your system or container.
+- [ImmuDB](https://immudb.io/) - driver package is [github.com/codenotary/immudb/v2/pkg/stdlib](https://docs.immudb.io/master/connecting/sdks)
+  - ImmuDB is an example of a driver whose license allows you to use it locally with `usqlgen` but likely prevents adding it to upstream `usql`.
 - etc.
 
 `usqlgen` also allows you to import alternative drivers of supported databases. Examples include:
