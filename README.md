@@ -126,7 +126,7 @@ With `usqlgen`, [CGO support](https://pkg.go.dev/cmd/cgo) on the system is not n
 In contrast, compiling `usql` the regular way does require CGO. With `usqlgen`, you only need CGO if you:
 
 - import drivers that use CGO e.g. `--import github.com/sclgo/adbcduck-go`. The driver documentation should mention
-  if the drivers uses CGO.
+  if the driver uses CGO.
 - add drivers that use CGO with tags e.g. `-- -tags duckdb` .
 
 When CGO is not available, `usqlgen build/install` commands modify the default "base" driver set,
