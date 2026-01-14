@@ -66,9 +66,12 @@ chmod +x ./usql
 `usqlgen` isn't distributed as prebuilt binaries because running it requires Go installation anyway
 (locally or within a container).
 
+For brevity, the examples below assume `usqlgen` is installed on the PATH, but, in practice,
+it is more convinient use `go run` without installing.
+
 ## Quickstart
 
-To install `usql` with support for an additional driver, first review your driver documentation
+To build `usql` with support for an additional driver, first review your driver documentation
 to find the Go driver name, DSN ([Data Source Name](https://pkg.go.dev/database/sql#Open)) format,
 and package that needs to be imported.
 Let's take for example, [MonetDB](https://github.com/MonetDB/MonetDB-Go#readme), which is not in `usql` yet. The docs
@@ -101,44 +104,20 @@ So to connect to MonetDB with the binary we just built, run:
 Above `monetdb` is repeated in the beginning of the DB URL because it is both the Go driver name,
 and the admin username in the beginning of the DSN.
 
-You can try the same with databases or data engines like:
-
-- various SQLite derivatives - [rqlite](https://github.com/rqlite/gorqlite?tab=readme-ov-file#driver-for-databasesql),
-  [libsql / turso](https://github.com/tursodatabase/go-libsql)
-- [Dremio or Apache Drill](https://github.com/factset/go-drill),
-- [Cloudflare D1](https://github.com/SyneHQ/d1_go_sql),
-- [TDEngine](https://github.com/taosdata/driver-go) - [a time-series database](https://tdengine.com/tsdb/),
-- [IBM DB2](https://github.com/ibmdb/go_ibm_db) - vanilla usql makes you use ODBC to access DB2. ODBC might not be available on your system or container.
-- [ImmuDB](https://immudb.io/) - driver package is [github.com/codenotary/immudb/v2/pkg/stdlib](https://docs.immudb.io/master/connecting/sdks)
-  - ImmuDB is an example of a driver whose license allows you to use it locally with `usqlgen` but likely prevents adding it to upstream `usql`.
-- etc.
-
-`usqlgen` also allows you to import alternative drivers of supported databases. Examples include:
-
-- [github.com/microsoft/gocosmos](https://github.com/microsoft/gocosmos) - an official(-ish) mirror of the unofficial
-  driver included in `usql`
-- [github.com/yugabyte/pgx/stdlib](https://github.com/yugabyte/pgx) - Standalone fork of the Postgres pgx driver with
-  cluster-aware load balancing by [Yugabyte](https://www.yugabyte.com/)
-- [github.com/mailru/go-clickhouse/v2](https://github.com/mailru/go-clickhouse) - HTTP-only alternative of the built-in Clickhouse driver
-- [github.com/sclgo/adbcduck-go](https://github.com/sclgo/adbcduck-go) - alternative driver for DuckDB on top of
-  [its ADBC API](https://duckdb.org/docs/clients/adbc)
-- [github.com/ncruces/go-sqlite3/driver](https://github.com/ncruces/go-sqlite3) - another pure Go SQLite, based on
-  [wazero](https://github.com/wazero/wazero), as opposed to ccgo.
-- [github.com/mattn/go-oci8](https://github.com/mattn/go-oci8) - alternative Oracle driver, wrapping the official Oracle client
-
-For more options, see `usqlgen --help` or review the examples below.
+For more options, see `usqlgen --help` or review the [examples](#examples) below.
 
 ## Limitations
 
 Most `usql` [backslash (meta) commands](https://github.com/xo/usql?tab=readme-ov-file#backslash-commands) work 
 with new drivers added with `--import`, including 
 [cross-database `\copy`](https://github.com/xo/usql?tab=readme-ov-file#copying-between-databases).
-Informational commands will work though if the database provides ANSI-compatible `information_schema`.
+However, informational commands eg. `\dt` work only if the database provides ANSI-compatible 
+[information_schema](https://en.wikipedia.org/wiki/Information_schema).
 
 `usql` requires that connection strings are valid URIs or URLs, at least according to the Go `net/url` parsing algorithm.
 If you get an error that parameter in the form `driverName:DSN` can't be parsed as a URL,
 start `usql` without a connection string - in interactive mode or with the `-f` parameter. `usql` will start not connected to a DB.
-Then use the `\connect` command with two arguments driverName and DSN. In the `monetdb` example above, that would be:
+Then use the `\connect` command with two arguments driverName and DSN. In the `monetdb` quickstart example above, that would be:
 `\connect monetdb monetdb:password@localhost:50000/monetdb`.
 
 ## CGO usage
@@ -146,8 +125,8 @@ Then use the `\connect` command with two arguments driverName and DSN. In the `m
 With `usqlgen`, [CGO support](https://pkg.go.dev/cmd/cgo) on the system is not needed in most cases.
 In contrast, compiling `usql` the regular way does require CGO. With `usqlgen`, you only need CGO if you:
 
-- import drivers that use CGO e.g. `--import github.com/sclgo/adbcduck-go`. The driver documentation should mention such
-  usage.
+- import drivers that use CGO e.g. `--import github.com/sclgo/adbcduck-go`. The driver documentation should mention
+  if the drivers uses CGO.
 - add drivers that use CGO with tags e.g. `-- -tags duckdb` .
 
 When CGO is not available, `usqlgen build/install` commands modify the default "base" driver set,
@@ -168,6 +147,35 @@ All in all, `usqlgen`, and the `usql` binaries it produces, are very portable, e
 
 ## Examples
 
+### Tested drivers
+
+You can try `usqlgen` with databases or data engines like:
+
+- various SQLite derivatives - [rqlite](https://github.com/rqlite/gorqlite?tab=readme-ov-file#driver-for-databasesql),
+  [libsql / turso](https://github.com/tursodatabase/go-libsql)
+- [Dremio or Apache Drill](https://github.com/factset/go-drill),
+- [Cloudflare D1](https://github.com/SyneHQ/d1_go_sql),
+- [TDEngine](https://github.com/taosdata/driver-go) - [a time-series database](https://tdengine.com/tsdb/) . This driver compiles only if TDEngine
+  libraries are already installed on the system and, as a result, can't be added to upstream `usql`.
+- [ImmuDB](https://immudb.io/) - driver package is [github.com/codenotary/immudb/v2/pkg/stdlib](https://docs.immudb.io/master/connecting/sdks) .
+  This is an example of a driver whose license allows you to use it locally with `usqlgen` but likely prevents adding it to upstream `usql`.
+- etc.
+
+`usqlgen` also allows you to import alternative drivers of supported databases. Examples include:
+
+- [github.com/microsoft/gocosmos](https://github.com/microsoft/gocosmos) - an official(-ish) mirror of the unofficial
+  driver included in `usql`
+- [github.com/yugabyte/pgx/stdlib](https://github.com/yugabyte/pgx) - Standalone fork of the Postgres pgx driver with
+  cluster-aware load balancing by [Yugabyte](https://www.yugabyte.com/)
+- [github.com/mailru/go-clickhouse/v2](https://github.com/mailru/go-clickhouse) - HTTP-only alternative of the built-in Clickhouse driver
+- [github.com/sclgo/adbcduck-go](https://github.com/sclgo/adbcduck-go) - alternative driver for DuckDB on top of
+  [its ADBC API](https://duckdb.org/docs/clients/adbc)
+- [github.com/ncruces/go-sqlite3/driver](https://github.com/ncruces/go-sqlite3) - another pure Go SQLite, based on
+  [wazero](https://github.com/wazero/wazero), as opposed to ccgo.
+- [github.com/mattn/go-oci8](https://github.com/mattn/go-oci8) - alternative Oracle driver, wrapping the official Oracle client
+- [github.com/ibmdb/go_ibm_db](https://github.com/ibmdb/go_ibm_db) - upstream `usql` makes you use ODBC to access IBM DB2. If ODBC is not an option
+  for you, this driver might help even though [its installation](https://github.com/ibmdb/go_ibm_db/blob/master/INSTALL.md) is quite convoluted.
+
 ### Installing the customized `usql`
 
 Use `usqlgen install ...` to install the customized `usql` to `GOPATH/bin` which is
@@ -184,7 +192,7 @@ usql -c '\drivers' | grep monetdb
 
 `usqlgen build` and `usqlgen install` call `go build` and `go install` respectively.
 You can pass options directly to the `go` commands after the `--` parameter.
-For example, the following command supplies go build tag no_base which removes
+For example, the following command supplies go build tag `no_base` which removes
 all built-in `usql` drivers so only the custom one we add remains:
 
 ```shell
