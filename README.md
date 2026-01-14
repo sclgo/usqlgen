@@ -67,7 +67,7 @@ chmod +x ./usql
 (locally or within a container).
 
 For brevity, the examples below assume `usqlgen` is installed on the PATH, but, in practice,
-it is more convinient use `go run` without installing.
+it is more convenient use `go run` without installing.
 
 ## Quickstart
 
