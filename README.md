@@ -307,11 +307,14 @@ stop the program.
 
 ### Compilation errors
 
-Any compilation errors during `build` or `install` commands are likely caused by
+Compilation errors during `build` or `install` commands may be caused by
 incompatibility between the newly imported drivers and the existing ones.
 Trying adding `-- -tags no_base` to the command. If that resolves the compilation issue,
 but removes an existing driver that you need, try adding it specifically using the
 respective tag, documented in <https://github.com/xo/usql?tab=readme-ov-file#database-support>.
+
+Compilation errors may also be caused by unsatisfied requirements of the driver. Some Go drivers wrap
+native drivers and need the drivers to be manually installed beforehand.
 
 ## Support
 
