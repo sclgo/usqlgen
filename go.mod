@@ -1,6 +1,6 @@
 module github.com/sclgo/usqlgen
 
-go 1.24.6
+go 1.25.7
 
 require (
 	github.com/ansel1/merry/v2 v2.2.3
