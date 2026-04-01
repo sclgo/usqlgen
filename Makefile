@@ -21,8 +21,8 @@ integration-test:
 itest: integration-test
 
 .PHONY: lint
-lint:
-	golangci-lint run -v
+lint: tools/golangci-lint
+	tools/golangci-lint run -v
 
 .PHONY: checks
 checks: check_tidy check_vuln check_modern
@@ -42,3 +42,15 @@ check_modern:
 	go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@v0.20.0 ./...
 # non-zero exit status on issues found
 # nb: modernize is not part of golangci-lint yet - https://github.com/golangci/golangci-lint/issues/686
+
+# Tools targets
+
+tools:
+	mkdir -p tools
+
+tools/golangci-lint: tools
+# Version must be the same as in golangci-lint Github action
+# We install golangci-lint as recommended in the docs. See the same docs for a discussion about go run and
+# go get -tool alternatives - https://golangci-lint.run/docs/welcome/install/ .
+# Delete tools/golangci-lint if this target is updated (may be automated in the future)
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b ./tools v2.11.4

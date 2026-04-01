@@ -1,6 +1,6 @@
 module github.com/sclgo/usqlgen
 
-go 1.25.7
+go 1.25.8
 
 require (
 	github.com/ansel1/merry/v2 v2.2.3
@@ -95,5 +95,3 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.8.2 // indirect
 )
-
-tool honnef.co/go/tools/cmd/staticcheck
