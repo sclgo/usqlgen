@@ -279,16 +279,17 @@ func writeActuals(ctx context.Context, stmt *sql.Stmt, actuals []any, rowsAffect
 }
 
 func makeQuery(clen int, rows int, tableSpec string, placeholder func(n int) string) string {
-	query := "INSERT INTO " + tableSpec + " VALUES "
+	var query strings.Builder
+	query.WriteString("INSERT INTO " + tableSpec + " VALUES ")
 	placeholders := make([]string, clen)
 	for i := range rows {
 		for j := range clen {
 			placeholders[j] = placeholder(i*clen + j + 1)
 		}
-		query += "(" + strings.Join(placeholders, ", ") + ")"
+		query.WriteString("(" + strings.Join(placeholders, ", ") + ")")
 		if i < rows-1 {
-			query += ", "
+			query.WriteString(", ")
 		}
 	}
-	return query
+	return query.String()
 }

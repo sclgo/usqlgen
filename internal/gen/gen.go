@@ -74,8 +74,7 @@ func (i Input) AllDownload() (Result, error) {
 	cmd.Stderr = io.MultiWriter(&errorBuf, os.Stderr)
 	err = cmd.Run()
 	if err != nil {
-		var exitErr *exec.ExitError
-		if !errors.As(err, &exitErr) || exitErr.ExitCode() != 1 || outputBuf.Len() > 0 {
+		if exitErr, ok := errors.AsType[*exec.ExitError](err); !ok || exitErr.ExitCode() != 1 || outputBuf.Len() == 0 {
 			return result, merry.Wrap(err, merry.AppendMessagef("while running go mod download with stdout length %d and stderr output \n%s", outputBuf.Len(), &errorBuf))
 		}
 		// We ignore exit code 1 with non-empty output, because this indicates a partial success of

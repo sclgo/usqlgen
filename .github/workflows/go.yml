@@ -15,12 +15,12 @@ jobs:
     # Only ubuntu allows for docker support - https://docs.github.com/en/actions/using-containerized-services/about-service-containers
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
-        go-version: '1.25.7'
+        go-version: '1.26.1'
 
     - name: Build
       run: go build -v ./...
@@ -37,19 +37,21 @@ jobs:
           - "windows-latest"
           - "macos-latest"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
         with:
           # use really old 1.21 version to validate claim in docs
           go-version: '1.21'
       - name: Test
         run: make test
+        env:
+          GOTOOLCHAIN: auto
 
   newgo:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
         with:
           go-version: "1.26"
       - name: Test
