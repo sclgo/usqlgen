@@ -14,6 +14,8 @@ jobs:
   e2e:
     # Only ubuntu allows for docker support - https://docs.github.com/en/actions/using-containerized-services/about-service-containers
     runs-on: ubuntu-latest
+    env:
+      GOTOOLCHAIN: auto
     steps:
     - uses: actions/checkout@v6
 
@@ -43,7 +45,7 @@ jobs:
           # use really old 1.21 version to validate claim in docs
           go-version: '1.21'
       - name: Test
-        run: GOTOOLCHAIN=auto make test
+        run: make test
 
   newgo:
     runs-on: ubuntu-latest
