@@ -20,7 +20,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v6
       with:
-        go-version: '1.26.1'
+        go-version-file: 'go.mod'
 
     - name: Build
       run: go build -v ./...
@@ -47,12 +47,12 @@ jobs:
         env:
           GOTOOLCHAIN: auto
 
-  newgo:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
-        with:
-          go-version: "1.26"
-      - name: Test
-        run: make test
+  # newgo:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - uses: actions/setup-go@v6
+  #       with:
+  #         go-version: "1.27rc1"
+  #     - name: Test
+  #       run: make test

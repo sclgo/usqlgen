@@ -1,18 +1,18 @@
 module github.com/sclgo/usqlgen
 
-go 1.26.1
+go 1.26.5
 
 require (
-	github.com/ansel1/merry/v2 v2.2.3
+	github.com/ansel1/merry/v2 v2.2.4
 	github.com/mithrandie/csvq-driver v1.7.0
 	github.com/murfffi/gorich v0.3.0
-	github.com/samber/lo v1.52.0
+	github.com/samber/lo v1.53.0
 	github.com/stretchr/testify v1.10.0
 	github.com/tam7t/sigprof v0.0.0-20160401200512-7750edaf4b70
 	github.com/testcontainers/testcontainers-go v0.35.0
 	github.com/urfave/cli/v2 v2.27.7
 	github.com/xo/dburl v0.24.2
-	modernc.org/fileutil v1.3.40
+	modernc.org/fileutil v1.4.0
 	modernc.org/sqlite v1.35.0
 )
 
@@ -78,9 +78,9 @@ require (
 	go.opentelemetry.io/otel/trace v1.34.0 // indirect
 	golang.org/x/crypto v0.46.0 // indirect
 	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac // indirect
-	golang.org/x/sys v0.39.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/term v0.38.0 // indirect
-	golang.org/x/text v0.32.0 // indirect
+	golang.org/x/text v0.40.0 // indirect
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240318140521-94a12d6c2237 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
