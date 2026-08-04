@@ -159,6 +159,7 @@ You can try `usqlgen` with databases or data engines like:
   libraries are already installed on the system and, as a result, can't be added to upstream `usql`.
 - [ImmuDB](https://immudb.io/) - driver package is [github.com/codenotary/immudb/v2/pkg/stdlib](https://docs.immudb.io/master/connecting/sdks) .
   This is an example of a driver whose license allows you to use it locally with `usqlgen` but likely prevents adding it to upstream `usql`.
+- [Dameng Database](https://github.com/godoes/gorm-dameng) - driver package: `github.com/godoes/gorm-dameng/dm8`, driver name: `dm`, [database homepage](https://en.dameng.com/product/index.html)
 - etc.
 
 `usqlgen` also allows you to import alternative drivers of supported databases. Examples include:
