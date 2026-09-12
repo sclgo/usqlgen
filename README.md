@@ -208,8 +208,11 @@ Review <https://github.com/xo/usql?tab=readme-ov-file#building> for build tags, 
 by `usql` and the documentation of `go build` and `go install` for other options.
 
 Go environment variables like `GOPRIVATE` or `CGO_ENABLED` affect the compilation
-as usual. For example, `GOPRIVATE` allows you to compile `usql` with drivers which
-are not publicly available; `GOOS` and `GOARCH` allow you to cross-compile, and so on.
+as usual. For example, [`GOPRIVATE`](https://go.dev/doc/modules/managing-dependencies) 
+allows you to compile `usql` with drivers which are not publicly available; 
+`GOOS` and `GOARCH` allow you to cross-compile; 
+[`GOTOOLCHAIN`](https://go.dev/doc/toolchain#select)
+controls how the toolchain is upgraded based on new module requirements, and so on.
 
 ### Using a driver fork
 
