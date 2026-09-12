@@ -10,7 +10,6 @@ without needing to fork.
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/sclgo/usqlgen.svg)](https://pkg.go.dev/github.com/sclgo/usqlgen)
 ![Tests](https://github.com/sclgo/usqlgen/actions/workflows/go.yml/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/sclgo/usqlgen)](https://goreportcard.com/report/github.com/sclgo/usqlgen)
 
 > [!IMPORTANT]
 > The README on the `main` branch may refer to features that are not in the latest tagged version.
