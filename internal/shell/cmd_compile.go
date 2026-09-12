@@ -47,7 +47,7 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 	}
 
 	if compileCmd == "" {
-		return run.GoBin(workingDir, nil, c.goBin, "mod", "tidy")
+		panic("compileCmd is empty")
 	}
 
 	var addEnv []string
@@ -67,9 +67,10 @@ func (c *CompileCommand) compile(compileCmd string, compileArgs ...string) error
 		args = append(args, "-trimpath")
 	}
 
-	// NB: This might interfere with PassthroughArgs
-	// Required to avoid go mod tidy when adding just imports
-	args = append(args, "-mod=mod")
+	// -mod=mod used to be added to the build command to avoid running go mod tidy in gen.go
+	// However, -mod=mod does not upgrade the toolchain when needed regardless of the GOTOOLCHAIN setting
+	// TODO find documentation or log bug. Based on existing github issues, support for -mod=mod is spotty in general.
+	// Also it might interfere with PassthroughArgs.
 
 	args = append(args, c.Globals.PassthroughArgs...)
 	args = append(args, ".")

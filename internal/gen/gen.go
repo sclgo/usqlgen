@@ -113,8 +113,7 @@ func (i Input) AllDownload() (Result, error) {
 	}
 
 	// We believe that we don't need to "go get" packages in the --imports params,
-	// since this is handled by CompileCmd using either -mod=mod for build/install,
-	// or "go mod tidy for generate
+	// because we run go mod tidy at the end.
 
 	err = i.populateDbMgr()
 	if err != nil {
@@ -137,6 +136,11 @@ func (i Input) AllDownload() (Result, error) {
 			i.log("Failed to adjust base cgo tags, but this might not be an issue, depending on tags and environment. Cause: %v", adjustErr)
 		}
 	}
+
+	// goModReplace may have executed go mod tidy but executing again is fast, and we don't need to make
+	// the code more complex to remove the additional call
+	// Note that go build -mod=mod doesn't work if one of the dependencies needs the toolchain to be updated.
+	err = i.runGo("mod", "tidy")
 
 	return result, err
 }
