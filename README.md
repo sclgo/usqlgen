@@ -163,7 +163,7 @@ You can try `usqlgen` with databases or data engines like:
 
 `usqlgen` also allows you to import alternative drivers of supported databases. Examples include:
 
-- [github.com/oracle/go-oracledb] - the new official pure-Go driver for Oracle.
+- [github.com/oracle/go-oracledb](https://github.com/oracle/go-oracledb) - the new official pure-Go driver for Oracle.
 - [github.com/microsoft/gocosmos](https://github.com/microsoft/gocosmos) - an official(-ish) mirror of the unofficial
   driver included in `usql`
 - [github.com/yugabyte/pgx/stdlib](https://github.com/yugabyte/pgx) - Standalone fork of the Postgres pgx driver with
