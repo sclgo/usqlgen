@@ -9,7 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sclgo/usqlgen/internal/gen"
 	"github.com/stretchr/testify/require"
 )
 
@@ -31,17 +30,6 @@ func IntegrationOnly(t *testing.T) {
 //	err = db.PingContext(ctx)
 //	require.NoError(t, err)
 //}
-
-func CheckGenAll(t *testing.T, inp gen.Input, dsn string, command string, tags ...string) {
-	tmpDir := t.TempDir()
-	inp.WorkingDir = tmpDir
-
-	err := inp.All()
-	require.NoError(t, err)
-
-	output := RunGeneratedUsql(t, dsn, command, tmpDir, tags...)
-	require.Contains(t, output, "(1 row)")
-}
 
 func RunGeneratedUsql(t *testing.T, dsn string, command string, tmpDir string, tags ...string) string {
 	t.Logf("Running cmd %s with dsn %s", command, dsn)

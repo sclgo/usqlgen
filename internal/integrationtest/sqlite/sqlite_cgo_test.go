@@ -16,7 +16,7 @@ func TestSqliteCgo(t *testing.T) {
 	tmpDir := t.TempDir()
 	inp.WorkingDir = tmpDir
 
-	err := inp.All()
+	_, err := inp.AllDownload()
 	require.NoError(t, err)
 
 	output := it.RunGeneratedUsql(t, "sqlite3::memory:", `select sqlite_version()`, tmpDir, "no_moderncsqlite")
