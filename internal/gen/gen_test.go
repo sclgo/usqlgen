@@ -82,7 +82,7 @@ func runGenAll(t *testing.T, inp gen.Input, env []string) string {
 	tmpDir := t.TempDir()
 	inp.WorkingDir = tmpDir
 
-	err := inp.All()
+	_, err := inp.AllDownload()
 	require.NoError(t, err)
 
 	env = append(os.Environ(), env...)

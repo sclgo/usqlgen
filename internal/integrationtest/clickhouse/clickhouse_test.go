@@ -36,7 +36,7 @@ func TestClickhouse(t *testing.T) {
 	tmpDir := t.TempDir()
 	inp.WorkingDir = tmpDir
 
-	err := inp.All()
+	_, err := inp.AllDownload()
 	require.NoError(t, err)
 
 	t.Run("basic query", func(t *testing.T) {

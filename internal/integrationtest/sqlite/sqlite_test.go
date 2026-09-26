@@ -1,7 +1,6 @@
 package sqlite
 
 import (
-	"runtime"
 	"testing"
 
 	"github.com/sclgo/usqlgen/internal/gen"
@@ -14,9 +13,6 @@ import (
 // CGO tests go in sqlite_cgo_test.go
 
 func TestSqlite_NoCgo(t *testing.T) {
-	if runtime.GOOS == "darwin" {
-		t.Skip("Skipping on No CGO test on MacOS due to https://github.com/jeandeaual/go-locale/issues/30#issuecomment-2798583087")
-	}
 	noCgoEnv := []string{"CGO_ENABLED=0"}
 
 	t.Run("base", func(t *testing.T) {
@@ -28,7 +24,7 @@ func TestSqlite_NoCgo(t *testing.T) {
 		tmpDir := t.TempDir()
 		inp.WorkingDir = tmpDir
 
-		err := inp.All()
+		_, err := inp.AllDownload()
 		require.NoError(t, err)
 
 		_, err = it.RunGeneratedUsqlE("", `\drivers`, tmpDir, noCgoEnv, tag)
@@ -49,7 +45,7 @@ func TestSqlite_NoCgo(t *testing.T) {
 				t.Log(tmpDir)
 				inp.WorkingDir = tmpDir
 
-				err := inp.All()
+				_, err := inp.AllDownload()
 				require.NoError(t, err)
 
 				_, err = it.RunGeneratedUsqlE("", `\drivers`, tmpDir, noCgoEnv, tag)
@@ -70,7 +66,7 @@ func TestSqlite_NoCgo(t *testing.T) {
 		tmpDir := t.TempDir()
 		inp.WorkingDir = tmpDir
 
-		err := inp.All()
+		_, err := inp.AllDownload()
 		require.NoError(t, err)
 
 		_, err = it.RunGeneratedUsqlE("", `\drivers`, tmpDir, noCgoEnv, "base")

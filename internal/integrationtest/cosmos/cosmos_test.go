@@ -25,7 +25,7 @@ func TestCosmos(t *testing.T) {
 	tmpDir := t.TempDir()
 	inp.WorkingDir = tmpDir
 
-	err := inp.All()
+	_, err := inp.AllDownload()
 	require.NoError(t, err)
 
 	cmd := exec.Command("go", "run", "-mod=mod", "-tags", integrationtest.NoBaseTag, ".", "gocosmos:AccountEndpoint=https://localhost;AccountKey=test", "-c", `LIST DATABASES;`)

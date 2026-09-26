@@ -216,11 +216,6 @@ func (i Input) copyOriginalFromDir(downloadInfo map[string]any) error {
 	return err
 }
 
-func (i Input) All() error {
-	_, err := i.AllDownload()
-	return err
-}
-
 func (i Input) goModReplace(replaceList []string) error {
 	for _, rs := range replaceList {
 
@@ -298,7 +293,12 @@ func (i Input) replaceMain() error {
 }
 
 func (i Input) adjustCgoTags() error {
-	err := i.replaceInUsqlFile(filepath.Join("internal", "sqlite3.go"), "!no_base", "!no_base && cgo")
+	err := i.replaceInUsqlFile(filepath.Join("internal", "duckdb.go"), "!no_base", "!no_base && cgo")
+	if err != nil {
+		return err
+	}
+
+	err = i.replaceInUsqlFile(filepath.Join("internal", "sqlite3.go"), "!no_base", "!no_base && cgo")
 	if err != nil {
 		return err
 	}
